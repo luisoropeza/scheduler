@@ -1,0 +1,9 @@
+<app-page-header title="Appointments">
+  <app-date-range-picker titleAccessory [from]="dateFrom()" [to]="dateTo()" (rangeChange)="setDateRange($event)" />
+</app-page-header>
+
+<div cdkDropListGroup class="flex min-h-0 flex-1 gap-5 overflow-x-auto pb-4">
+  @for (column of columns(); track column.id) {
+    <app-board-column [column]="column" (dropped)="drop($event)" />
+  }
+</div>

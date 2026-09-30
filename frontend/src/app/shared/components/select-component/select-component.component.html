@@ -1,0 +1,55 @@
+<div class="my-2 relative">
+  <label [ngClass]="{ required: isRequired() }" for="input">{{
+    label()
+  }}</label>
+
+  <button
+    type="button"
+    (click)="toggle()"
+    class="w-full flex items-center justify-between border border-neutral-400 rounded p-2 bg-white text-left"
+  >
+    <span [ngClass]="{ 'text-neutral-400': !selected() }">
+      {{ selected() ? selected()!.label : placeholder() }}
+    </span>
+    <svg
+      class="w-4 h-4 text-neutral-500 transition-transform"
+      [ngClass]="{ 'rotate-180': isOpen() }"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </button>
+  @if (isOpen()) {
+    <div class="fixed inset-0 z-10" (click)="close()"></div>
+
+    <div
+      class="absolute z-20 mt-1 w-full bg-white border border-neutral-400 rounded-lg shadow-lg overflow-hidden"
+    >
+      @if (isSearchable()) {
+        <input
+          type="text"
+          class="w-full p-2 border-b border-neutral-400 outline-none"
+          placeholder="Buscar..."
+          #searchInput
+          (input)="search(searchInput.value)"
+        />
+      }
+
+      <div class="max-h-60 overflow-y-auto">
+        @for (item of data(); track item) {
+          <div
+            (click)="select(item)"
+            class="p-2 cursor-pointer hover:bg-neutral-100"
+          >
+            {{ item.label }}
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

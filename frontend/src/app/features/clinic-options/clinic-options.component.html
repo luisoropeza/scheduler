@@ -1,0 +1,32 @@
+<div class="min-h-screen bg-neutral px-6 py-10">
+  <div class="mx-auto max-w-5xl">
+    <h1 class="text-3xl font-bold text-gray-900">Selecciona una clínica activa</h1>
+    <p class="mt-2 max-w-2xl text-sm text-gray-500">
+      Elige una ubicación para acceder a tableros especializados de pacientes, calendarios y análisis específicos por
+      departamento.
+    </p>
+
+    <div class="mt-8 border-t border-gray-200"></div>
+
+    @if (isLoading()) {
+      <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="h-56 animate-pulse rounded-xl border border-gray-200 bg-white"></div>
+        }
+      </div>
+    } @else if (clinics().length) {
+      <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        @for (clinic of clinics(); track clinic.id; let i = $index; let first = $first) {
+          <app-clinic-option-card
+            [clinic]="clinic"
+            [highlighted]="first"
+            [accent]="accents[i % accents.length]"
+            (select)="selectClinic($event)"
+          />
+        }
+      </div>
+    } @else {
+      <p class="mt-8 text-sm text-gray-400">No tienes clínicas asignadas todavía.</p>
+    }
+  </div>
+</div>
