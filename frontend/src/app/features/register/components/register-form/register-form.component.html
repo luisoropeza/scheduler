@@ -1,0 +1,55 @@
+<form [formGroup]="formGroup" action="" class="w-full max-w-sm">
+  <div class="rounded-2xl border border-gray-100 bg-white p-8 shadow-xl shadow-gray-900/5">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">Crea una cuenta</h1>
+      <p class="mt-1 text-sm text-gray-500">Regístrate para acceder a todas las funciones</p>
+    </div>
+
+    <div class="space-y-4">
+      <app-input-component
+        label="Nombre"
+        placeholder="Ingresa tu nombre"
+        [type]="inputType.TEXT"
+        [isRequired]="true"
+        formControlName="name"
+      />
+      <app-input-component
+        label="Nombre de usuario"
+        placeholder="Ingresa tu nombre de usuario"
+        [type]="inputType.TEXT"
+        [isRequired]="true"
+        formControlName="adminName"
+      />
+      <app-input-component
+        label="Email"
+        placeholder="Ingresa tu email"
+        [type]="inputType.EMAIL"
+        [isRequired]="true"
+        formControlName="adminEmail"
+      />
+      <app-input-component
+        label="Teléfono"
+        placeholder="Ingresa tu teléfono"
+        [type]="inputType.TEXT"
+        formControlName="phoneNumber"
+      />
+      <app-input-component
+        label="Contraseña"
+        placeholder="Ingresa tu contraseña"
+        [type]="inputType.PASSWORD"
+        [isRequired]="true"
+        formControlName="adminPassword"
+      />
+    </div>
+
+    <app-button-component appClickRegister label="Registrarse" [fullWidth]="true" class="mt-6" />
+
+    <div class="mt-6 flex items-center gap-3">
+      <span class="h-px flex-1 bg-gray-200"></span>
+      <span class="text-xs text-gray-400">¿Ya tienes cuenta?</span>
+      <span class="h-px flex-1 bg-gray-200"></span>
+    </div>
+
+    <app-button-component label="Iniciar sesión" variant="outlined" [fullWidth]="true" (click)="navigate($event)" class="mt-4" />
+  </div>
+</form>

@@ -1,0 +1,97 @@
+<div class="glass-modal w-[26rem] rounded-3xl p-6">
+  <div class="mb-1 flex items-start justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-extrabold text-gray-900">New Appointment</h2>
+      <p class="text-sm font-medium text-gray-500">{{ data.dayLabel }}</p>
+    </div>
+    <button
+      type="button"
+      (click)="close()"
+      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl text-gray-400 transition-colors hover:bg-white/60 hover:text-gray-600"
+      aria-label="Close"
+    >
+      <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="mt-5 space-y-4">
+    <div>
+      <label class="mb-1.5 block text-xs font-bold tracking-wide text-gray-500">Patient name</label>
+      <input
+        formControlName="patientName"
+        type="text"
+        class="w-full rounded-2xl border border-gray-900/10 bg-gray-900/[0.04] px-4 py-2.5 text-sm text-gray-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)] transition-colors placeholder:text-gray-400 focus:border-primary/40 focus:bg-white focus:shadow-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+      />
+    </div>
+
+    <div>
+      <label class="mb-1.5 block text-xs font-bold tracking-wide text-gray-500">Reason</label>
+      <input
+        formControlName="reason"
+        type="text"
+        class="w-full rounded-2xl border border-gray-900/10 bg-gray-900/[0.04] px-4 py-2.5 text-sm text-gray-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)] transition-colors placeholder:text-gray-400 focus:border-primary/40 focus:bg-white focus:shadow-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+      />
+    </div>
+
+    <div class="flex gap-3">
+      <div class="flex-1">
+        <label class="mb-1.5 block text-xs font-bold tracking-wide text-gray-500">Time</label>
+        <input
+          formControlName="time"
+          type="time"
+          class="w-full rounded-2xl border border-gray-900/10 bg-gray-900/[0.04] px-4 py-2.5 text-sm text-gray-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)] transition-colors focus:border-primary/40 focus:bg-white focus:shadow-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+      </div>
+      <div class="flex-1">
+        <label class="mb-1.5 block text-xs font-bold tracking-wide text-gray-500">Duration (min)</label>
+        <input
+          formControlName="durationMinutes"
+          type="number"
+          min="5"
+          step="5"
+          class="w-full rounded-2xl border border-gray-900/10 bg-gray-900/[0.04] px-4 py-2.5 text-sm text-gray-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)] transition-colors focus:border-primary/40 focus:bg-white focus:shadow-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label class="mb-1.5 block text-xs font-bold tracking-wide text-gray-500">Priority</label>
+      <select
+        formControlName="priority"
+        class="w-full rounded-2xl border border-gray-900/10 bg-gray-900/[0.04] px-4 py-2.5 text-sm text-gray-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)] transition-colors focus:border-primary/40 focus:bg-white focus:shadow-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+      >
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="urgent">Urgent</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="mb-1.5 block text-xs font-bold tracking-wide text-gray-500">Doctor (optional)</label>
+      <input
+        formControlName="doctor"
+        type="text"
+        class="w-full rounded-2xl border border-gray-900/10 bg-gray-900/[0.04] px-4 py-2.5 text-sm text-gray-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)] transition-colors placeholder:text-gray-400 focus:border-primary/40 focus:bg-white focus:shadow-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+      />
+    </div>
+
+    <div class="mt-2 flex justify-end gap-2.5 pt-1">
+      <button
+        type="button"
+        (click)="close()"
+        class="glass-panel rounded-2xl px-5 py-2.5 text-sm font-bold text-gray-700 transition-colors hover:bg-white/70"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="rounded-2xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-colors hover:bg-primary/90"
+      >
+        Create Appointment
+      </button>
+    </div>
+  </form>
+</div>
