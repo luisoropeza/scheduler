@@ -56,8 +56,4 @@ jwt:
   secret: ${JWT_SECRET}
 
 security:
-  public-paths: /api/auth/login, /api/clinics, /swagger-ui.html, /v3/api-docs/**
-
-springdoc:
-  api-docs:
-    path: /swagger-ui.html
+  public-paths: /api/auth/login, /api/clinics, /swagger-ui/**, /v3/api-docs/**
