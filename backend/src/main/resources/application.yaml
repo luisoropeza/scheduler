@@ -16,6 +16,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         multiTenancy: SCHEMA
+  flyway:
+    locations: classpath:db/migration/public
+    baseline-on-migrate: true
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT}
