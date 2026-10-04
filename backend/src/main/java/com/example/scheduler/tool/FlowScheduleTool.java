@@ -1,4 +1,4 @@
-package com.example.scheduler.Tool;
+package com.example.scheduler.tool;
 
 import com.example.scheduler.dto.patient.PatientResponse;
 import com.example.scheduler.dto.personal.PersonalResponse;

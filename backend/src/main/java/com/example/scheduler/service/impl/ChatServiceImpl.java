@@ -1,6 +1,6 @@
 package com.example.scheduler.service.impl;
 
-import com.example.scheduler.Tool.FlowScheduleTool;
+import com.example.scheduler.tool.FlowScheduleTool;
 import com.example.scheduler.service.ChatService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.ai.chat.client.ChatClient;
