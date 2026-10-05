@@ -16,5 +16,4 @@ public record DoctorAvailabilityRequest(
         @NotNull
         @Min(5)
         Integer slotDurationMinutes
-) {
-}
+) {}

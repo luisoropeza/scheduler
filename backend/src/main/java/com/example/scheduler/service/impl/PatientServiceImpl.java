@@ -4,7 +4,9 @@ import com.example.scheduler.dto.patient.PatientRegisterRequest;
 import com.example.scheduler.dto.patient.PatientRequest;
 import com.example.scheduler.dto.patient.PatientResponse;
 import com.example.scheduler.dto.personal.PersonalResponse;
+import com.example.scheduler.entity.Account;
 import com.example.scheduler.entity.Patient;
+import com.example.scheduler.entity.Personal;
 import com.example.scheduler.enums.ERole;
 import com.example.scheduler.exception.BadRequestException;
 import com.example.scheduler.exception.ResourceNotFoundException;
@@ -42,15 +44,22 @@ public class PatientServiceImpl implements PatientService {
     @Override
     @Transactional
     public PatientResponse createPatient(PatientRegisterRequest request) {
-        var patient = patientRepository.findByAccountCi(request.ci())
+        var account = accountRepository.findByCi(request.ci())
                 .orElseGet(() -> {
-                    if(accountRepository.existsByEmailOrCi(request.email(), request.ci()))
-                        throw new BadRequestException("Account with email " + request.email() + " or ci"+ request.ci() +" already exists");
-                    return patientMapper.toEntity(request);
+                    if(accountRepository.existsByEmail(request.email()))
+                        throw new BadRequestException("Account with email " + request.email() + " is already exists");
+                    return Account.builder()
+                            .name(request.name())
+                            .password(passwordEncoder.encode(request.password()))
+                            .email(request.email())
+                            .phoneNumber(request.phoneNumber())
+                            .build();
                 });
         var role = roleRepository.getByName(ERole.PATIENT);
-        patient.setRole(role);
-        patient.getAccount().setPassword(passwordEncoder.encode(request.password()));
+        var patient = Patient.builder()
+                .account(account)
+                .role(role)
+                .build();
         return patientMapper.toResponse(patientRepository.save(patient));
     }
 
@@ -69,6 +78,8 @@ public class PatientServiceImpl implements PatientService {
     @Transactional
     public PatientResponse updatePatientById(Long patientId, PatientRequest request) {
         var patient = getPatientOrThrowById(patientId);
+        if(!patient.getAccount().getEmail().equals(request.email()) && accountRepository.existsByEmail(request.email()))
+            throw new BadRequestException("Account with email " + request.email() + " is already exists");
         patientMapper.toEntityUpdated(request, patient);
         return patientMapper.toResponse(patientRepository.save(patient));
     }

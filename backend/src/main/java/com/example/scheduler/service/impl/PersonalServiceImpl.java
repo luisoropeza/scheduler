@@ -5,10 +5,7 @@ import com.example.scheduler.dto.personal.AssignAndRemoveRequest;
 import com.example.scheduler.dto.personal.PersonalRegisterRequest;
 import com.example.scheduler.dto.personal.PersonalRequest;
 import com.example.scheduler.dto.personal.PersonalResponse;
-import com.example.scheduler.entity.Patient;
-import com.example.scheduler.entity.Personal;
-import com.example.scheduler.entity.Role;
-import com.example.scheduler.entity.Specialty;
+import com.example.scheduler.entity.*;
 import com.example.scheduler.enums.ERole;
 import com.example.scheduler.exception.BadRequestException;
 import com.example.scheduler.exception.ForbiddenException;
@@ -57,17 +54,23 @@ public class PersonalServiceImpl implements PersonalService {
     @Override
     @Transactional
     public PersonalResponse createPersonal(PersonalRegisterRequest request) {
-        var personal = personalRepository.findByAccountCi(request.ci())
+        var account = accountRepository.findByCi(request.ci())
                 .orElseGet(() -> {
-                    if(accountRepository.existsByEmailOrCi(request.email(), request.ci()))
-                        throw new BadRequestException("Account with email " + request.email() + " or ci"+ request.ci() +" already exists");
-                    return personalMapper.toEntity(request);
+                    if(accountRepository.existsByEmail(request.email()))
+                        throw new BadRequestException("Account with email " + request.email() + " is already exists");
+                    return Account.builder()
+                            .name(request.name())
+                            .password(passwordEncoder.encode(request.password()))
+                            .email(request.email())
+                            .build();
                 });
         var role = getRoleOrThrowById(request.roleId());
-        personal.setRole(role);
-        personal.getAccount().setPassword(passwordEncoder.encode(request.password()));
         var specialty = getSpecialtyOrThrowById(request.specialtyId());
-        personal.setSpecialty(specialty);
+        var personal = Personal.builder()
+                .account(account)
+                .role(role)
+                .specialty(specialty)
+                .build();
         return personalMapper.toResponse(personalRepository.save(personal));
     }
 
@@ -80,6 +83,9 @@ public class PersonalServiceImpl implements PersonalService {
     @Transactional
     public PersonalResponse updatePersonalById(Long personalId, PersonalRequest request) {
         var personal = getPersonalOrThrowById(personalId);
+        if(!personal.getAccount().getEmail().equals(request.email()) && accountRepository.existsByEmail(request.email())){
+            throw new BadRequestException("Account with email " + request.email() + " is already exists");
+        }
         personalMapper.toEntityUpdated(request, personal);
         return personalMapper.toResponse(personalRepository.save(personal));
     }

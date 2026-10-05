@@ -58,7 +58,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new BusinessException("That slot is already taken");
         var doctor = personalRepository.getReferenceById(request.doctorId());
         var patient = patientRepository.getReferenceById(request.patientId());
-        Appointment appointment = Appointment.builder()
+        var appointment = Appointment.builder()
                 .doctor(doctor)
                 .patient(patient)
                 .startTime(request.startTime())

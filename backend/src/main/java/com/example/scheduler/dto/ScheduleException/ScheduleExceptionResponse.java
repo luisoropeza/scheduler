@@ -10,5 +10,4 @@ public record ScheduleExceptionResponse(
         LocalTime endTime,
         Boolean isFullDayBlock,
         String reason
-) {
-}
+) {}

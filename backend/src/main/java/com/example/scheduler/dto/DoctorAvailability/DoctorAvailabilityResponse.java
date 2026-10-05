@@ -10,5 +10,4 @@ public record DoctorAvailabilityResponse(
         LocalTime endTime,
         Integer slotDurationMinutes,
         Boolean active
-) {
-}
+) {}

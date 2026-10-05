@@ -8,5 +8,4 @@ public record DoctorAvailabilitySlotsResponse(
         LocalDate date,
         Long doctorId,
         List<LocalTime> availableSlots
-) {
-}
+) {}

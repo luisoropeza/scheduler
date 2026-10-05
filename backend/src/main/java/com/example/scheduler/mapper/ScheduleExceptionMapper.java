@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ScheduleExceptionMapper {
     ScheduleExceptionResponse toResponse(ScheduleException scheduleException);
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "doctor", ignore = true)
     ScheduleException toEntity(ScheduleExceptionRequest scheduleExceptionResponse);
 }

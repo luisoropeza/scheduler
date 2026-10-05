@@ -23,15 +23,5 @@ public interface PersonalMapper {
     @Mapping(target = "specialty", ignore = true)
     @Mapping(target = "patients", ignore = true)
     void toEntityUpdated(PersonalRequest request, @MappingTarget Personal personal);
-    @Mapping(target = "account.name", source = "name")
-    @Mapping(target = "account.email", source = "email")
-    @Mapping(target = "account.ci", source = "ci")
-    @Mapping(target = "account.password", ignore = true)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "role", ignore = true)
-    @Mapping(target = "active", ignore = true)
-    @Mapping(target = "specialty", ignore = true)
-    @Mapping(target = "patients", ignore = true)
-    Personal toEntity(PersonalRegisterRequest request);
     List<PersonalResponse> toResponseList(List<Personal> personals);
 }

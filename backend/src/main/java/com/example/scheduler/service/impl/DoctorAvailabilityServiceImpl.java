@@ -96,9 +96,9 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
 
     private List<LocalTime> createGeneratedSlots(List<DoctorAvailability> availabilities) {
         var generatedSlots = new ArrayList<LocalTime>();
-        for (DoctorAvailability availability : availabilities) {
-            LocalTime current = availability.getStartTime();
-            LocalTime end = availability.getEndTime();
+        for (var availability : availabilities) {
+            var current = availability.getStartTime();
+            var end = availability.getEndTime();
             var duration = availability.getSlotDurationMinutes();
             while (current.plusMinutes(duration).isBefore(end) || current.plusMinutes(duration).equals(end)) {
                 generatedSlots.add(current);

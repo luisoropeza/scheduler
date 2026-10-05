@@ -13,5 +13,4 @@ public record ScheduleExceptionRequest(
         @NotNull
         Boolean isFullDayBlock,
         String reason
-) {
-}
+) {}
