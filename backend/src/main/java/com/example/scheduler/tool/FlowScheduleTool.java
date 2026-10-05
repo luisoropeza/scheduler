@@ -28,8 +28,8 @@ public class FlowScheduleTool {
 
     @Tool(description = "Step 1: Return the patient information", name = "getPatientUser")
     public PatientResponse getPatientUser(){
-        String patientId = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-        Patient patient = getPatientOrThrowById(Long.parseLong(patientId));
+        var patientId = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        var patient = getPatientOrThrowById(Long.parseLong(patientId));
         return patientMapper.toResponse(patient);
     }
 

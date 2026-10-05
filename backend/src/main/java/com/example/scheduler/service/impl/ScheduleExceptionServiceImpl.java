@@ -26,14 +26,8 @@ public class ScheduleExceptionServiceImpl implements ScheduleExceptionService {
     public ScheduleExceptionResponse addDoctorScheduleException(Long doctorId, ScheduleExceptionRequest request) {
         var doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
-        var scheduleException = ScheduleException.builder()
-                .doctor(doctor)
-                .date(request.date())
-                .startTime(request.startTime())
-                .endTime(request.endTime())
-                .isFullDayBlock(request.isFullDayBlock())
-                .reason(request.reason())
-                .build();
+        var scheduleException = mapper.toEntity(request);
+        scheduleException.setDoctor(doctor);
         return mapper.toResponse(scheduleExceptionRepository.save(scheduleException));
     }
 }

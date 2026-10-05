@@ -71,9 +71,10 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
                 .filter(e -> !e.getIsFullDayBlock() && e.getStartTime() != null && e.getEndTime() != null)
                 .toList();
         var slotsAfterExceptions = generatedSlots.stream()
-                .filter(slot -> partialExceptions.stream().noneMatch(e ->
-                        !slot.isBefore(e.getStartTime()) && slot.isBefore(e.getEndTime())
-                ))
+                .filter(slot -> partialExceptions.stream()
+                        .noneMatch(e ->
+                                !slot.isBefore(e.getStartTime()) && slot.isBefore(e.getEndTime()))
+                )
                 .toList();
         var startOfDay = date.atStartOfDay();
         var endOfDay = date.atTime(LocalTime.MAX);
@@ -98,7 +99,7 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
         for (DoctorAvailability availability : availabilities) {
             LocalTime current = availability.getStartTime();
             LocalTime end = availability.getEndTime();
-            int duration = availability.getSlotDurationMinutes();
+            var duration = availability.getSlotDurationMinutes();
             while (current.plusMinutes(duration).isBefore(end) || current.plusMinutes(duration).equals(end)) {
                 generatedSlots.add(current);
                 current = current.plusMinutes(duration);

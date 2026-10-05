@@ -43,19 +43,19 @@ public @interface SpecialtyRoleMatch {
         public boolean isValid(Object value, ConstraintValidatorContext context) {
             if (value == null) return true;
             try {
-                Long roleId = (Long) getFieldValue(value, firstField);
-                Long specialtyId = (Long) getFieldValue(value, secondField);
+                var roleId = (Long) getFieldValue(value, firstField);
+                var specialtyId = (Long) getFieldValue(value, secondField);
                 if (roleId == null) return true;
-                boolean isDoctor = roleId.equals(ERole.DOCTOR.getId());
-                boolean isAssistant = roleId.equals(ERole.ASSISTANT.getId());
-                boolean existsSpecialty = specialtyId != null;
+                var isDoctor = roleId.equals(ERole.DOCTOR.getId());
+                var isAssistant = roleId.equals(ERole.ASSISTANT.getId());
+                var existsSpecialty = specialtyId != null;
                 if (isDoctor && !existsSpecialty) {
-                    String errorMessage = "The doctor role should have a specialty";
+                    var errorMessage = "The doctor role should have a specialty";
                     buildViolation(context, errorMessage, secondField);
                     return false;
                 }
                 if (isAssistant && existsSpecialty) {
-                    String errorMessage = "The assistant role shouldn't have a specialty";
+                    var errorMessage = "The assistant role shouldn't have a specialty";
                     buildViolation(context, errorMessage, secondField);
                     return false;
                 }
@@ -74,13 +74,13 @@ public @interface SpecialtyRoleMatch {
         }
 
         private Object getFieldValue(Object object, String fieldName) throws Exception {
-            Class<?> clazz = object.getClass();
+            var clazz = object.getClass();
             try {
-                Method recordMethod = clazz.getMethod(fieldName);
+                var recordMethod = clazz.getMethod(fieldName);
                 return recordMethod.invoke(object);
             } catch (NoSuchMethodException ignored) {}
-            String getterName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-            Method getterMethod = clazz.getMethod(getterName);
+            var getterName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+            var getterMethod = clazz.getMethod(getterName);
             return getterMethod.invoke(object);
         }
     }
