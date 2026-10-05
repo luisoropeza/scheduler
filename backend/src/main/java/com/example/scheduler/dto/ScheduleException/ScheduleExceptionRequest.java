@@ -6,10 +6,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record ScheduleExceptionRequest(
-        @NotNull LocalDate date,
+        @NotNull
+        LocalDate date,
         LocalTime startTime,
         LocalTime endTime,
-        @NotNull Boolean isFullDayBlock,
+        @NotNull
+        Boolean isFullDayBlock,
         String reason
 ) {
 }
