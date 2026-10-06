@@ -52,8 +52,12 @@ public class PatientServiceImpl implements PatientService {
                             .password(passwordEncoder.encode(request.password()))
                             .email(request.email())
                             .phoneNumber(request.phoneNumber())
+                            .ci(request.ci())
                             .build();
                 });
+        if (account.getId() != null)
+            if (patientRepository.existsByAccountCi(request.ci()))
+                throw new BadRequestException("This user already exists");
         var role = roleRepository.getByName(ERole.PATIENT);
         var patient = Patient.builder()
                 .account(account)

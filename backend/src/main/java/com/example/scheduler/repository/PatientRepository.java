@@ -24,12 +24,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
             "WHERE a.phoneNumber = :phoneNumber")
     Optional<Patient> findByAccountPhoneNumber(@Param("phoneNumber") String phoneNumber);
 
-    @Query("SELECT p FROM Patient p " +
-            "JOIN FETCH p.account a " +
-            "JOIN FETCH p.role r " +
-            "WHERE a.ci = :ci")
-    Optional<Patient> findByAccountCi(@Param("ci") String ci);
-
     @NullMarked
     @EntityGraph(attributePaths = {"account"})
     Page<Patient> findAll(Pageable pageable);
@@ -40,4 +34,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     @EntityGraph(attributePaths = {"doctors.account", "doctors.specialty", "doctors.role"})
     Optional<Patient> findPatientDoctorsById(Long id);
+
+    boolean existsByAccountCi(String ci);
 }

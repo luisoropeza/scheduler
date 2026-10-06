@@ -43,14 +43,9 @@ public interface PersonalRepository extends JpaRepository<Personal, Long> {
     @Query("SELECT p FROM Personal p " +
             "JOIN FETCH p.account a " +
             "JOIN FETCH p.role r " +
+            "LEFT JOIN FETCH p.specialty s " +
             "WHERE a.email = :email")
     Optional<Personal> findByAccountEmail(@Param("email") String email);
-
-    @Query("SELECT p FROM Personal p " +
-            "JOIN FETCH p.account a " +
-            "JOIN FETCH p.role r " +
-            "WHERE a.ci = :ci")
-    Optional<Personal> findByAccountCi(@Param("ci") String ci);
 
     @NullMarked
     @EntityGraph(attributePaths = {"specialty", "account", "role"})
@@ -58,4 +53,6 @@ public interface PersonalRepository extends JpaRepository<Personal, Long> {
 
     @EntityGraph(attributePaths = {"patients.account", "patients.role"})
     Optional<Personal> findDoctorPatientsById(Long id);
+
+    boolean existsByAccountCi(String ci);
 }

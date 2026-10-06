@@ -62,8 +62,12 @@ public class PersonalServiceImpl implements PersonalService {
                             .name(request.name())
                             .password(passwordEncoder.encode(request.password()))
                             .email(request.email())
+                            .ci(request.ci())
                             .build();
                 });
+        if (account.getId() != null)
+            if (personalRepository.existsByAccountCi(request.ci()))
+                throw new BadRequestException("This user already exists");
         var role = getRoleOrThrowById(request.roleId());
         var specialty = getSpecialtyOrThrowById(request.specialtyId());
         var personal = Personal.builder()
