@@ -1,12 +1,12 @@
 package com.example.scheduler.security;
 
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.Authentication;
 
 import java.util.Objects;
 
+@NoArgsConstructor()
 public final class SecurityUtils {
-
-    private SecurityUtils() {}
 
     public static String extractRole(Authentication auth) {
         return auth.getAuthorities().stream()
