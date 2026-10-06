@@ -16,7 +16,7 @@ import com.example.scheduler.repository.RoleRepository;
 import com.example.scheduler.service.ClinicService;
 import com.example.scheduler.service.SchemaProvisioningService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -32,7 +32,7 @@ public class ClinicServiceImpl implements ClinicService {
     private final RoleRepository roleRepository;
     private final AccountRepository accountRepository;
     private final PersonalRepository personalRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final SchemaProvisioningService schemaProvisioningService;
     private final PlatformTransactionManager transactionManager;
 

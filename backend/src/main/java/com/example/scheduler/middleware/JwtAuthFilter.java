@@ -29,18 +29,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             var header = request.getHeader("Authorization");
             if (header != null && header.startsWith("Bearer ")) {
-                var token = header.substring(7);
-                var subject = jwtUtil.extractSubject(token);
-                if (subject != null) {
-                    var schemaName = "clinic_" + jwtUtil.extractClinicId(token);
-                    TenantContext.setCurrentTenant(schemaName);
-                    var role = jwtUtil.extractRole(token);
+                jwtUtil.parse(header.substring(7)).ifPresent(claims -> {
+                    TenantContext.setCurrentTenant("clinic_" + claims.get("clinicId", Long.class));
+                    var role = claims.get("role", String.class);
                     List<SimpleGrantedAuthority> authorities = role != null
                             ? List.of(new SimpleGrantedAuthority("ROLE_" + role))
                             : List.of();
                     SecurityContextHolder.getContext().setAuthentication(
-                            new UsernamePasswordAuthenticationToken(subject, null, authorities));
-                }
+                            new UsernamePasswordAuthenticationToken(claims.getSubject(), null, authorities));
+                });
             }
             chain.doFilter(request, response);
         } finally {

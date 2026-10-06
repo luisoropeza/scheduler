@@ -19,7 +19,7 @@ import com.example.scheduler.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +34,7 @@ public class PatientServiceImpl implements PatientService {
     private final AccountRepository accountRepository;
     private final PatientMapper patientMapper;
     private final PersonalMapper personalMapper;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Page<PatientResponse> findAllPatients(Pageable pageable) {

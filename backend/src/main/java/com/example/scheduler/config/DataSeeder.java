@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -24,7 +24,7 @@ public class DataSeeder implements ApplicationRunner {
     private final PersonalRepository personalRepository;
     private final PatientRepository patientRepository;
     private final AccountRepository accountRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final PlatformTransactionManager transactionManager;
     private final SchemaProvisioningService schemaProvisioningService;
 

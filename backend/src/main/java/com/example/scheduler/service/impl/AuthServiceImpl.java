@@ -9,7 +9,7 @@ import com.example.scheduler.repository.PersonalRepository;
 import com.example.scheduler.security.JwtUtil;
 import com.example.scheduler.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,7 +18,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final PatientRepository patientRepository;
     private final PersonalRepository personalRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     @Override
