@@ -8,6 +8,7 @@ import com.example.scheduler.entity.Account;
 import com.example.scheduler.entity.Patient;
 import com.example.scheduler.enums.ERole;
 import com.example.scheduler.exception.BadRequestException;
+import com.example.scheduler.exception.BusinessException;
 import com.example.scheduler.exception.ResourceNotFoundException;
 import com.example.scheduler.mapper.PatientMapper;
 import com.example.scheduler.mapper.PersonalMapper;
@@ -57,7 +58,7 @@ public class PatientServiceImpl implements PatientService {
                 });
         if (account.getId() != null)
             if (patientRepository.existsByAccountCi(request.ci()))
-                throw new BadRequestException("This user already exists");
+                throw new BusinessException("This user already exists");
         var role = roleRepository.getByName(ERole.PATIENT);
         var patient = Patient.builder()
                 .account(account)

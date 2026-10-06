@@ -8,6 +8,7 @@ import com.example.scheduler.dto.personal.PersonalResponse;
 import com.example.scheduler.entity.*;
 import com.example.scheduler.enums.ERole;
 import com.example.scheduler.exception.BadRequestException;
+import com.example.scheduler.exception.BusinessException;
 import com.example.scheduler.exception.ForbiddenException;
 import com.example.scheduler.exception.ResourceNotFoundException;
 import com.example.scheduler.mapper.PatientMapper;
@@ -67,7 +68,7 @@ public class PersonalServiceImpl implements PersonalService {
                 });
         if (account.getId() != null)
             if (personalRepository.existsByAccountCi(request.ci()))
-                throw new BadRequestException("This user already exists");
+                throw new BusinessException("This user already exists");
         var role = getRoleOrThrowById(request.roleId());
         var specialty = getSpecialtyOrThrowById(request.specialtyId());
         var personal = Personal.builder()
