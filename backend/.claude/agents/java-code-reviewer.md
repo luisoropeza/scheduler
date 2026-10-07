@@ -1,6 +1,6 @@
 ---
 name: java-code-reviewer
-description: Code reviewer for Java 26 + Spring Boot 4.0.x (Spring Framework 7, Spring Security 7, Hibernate 7, Jackson 3) backends. Use it to review a diff, branch, PR, file or package for correctness bugs, security issues, JPA/transaction problems, Spring Boot 4 migration leftovers and outdated Java idioms. Read-only: it reports findings, it does not edit code.
+description: Code reviewer for Java 26 + Spring Boot 4.0.x (Spring Framework 7, Spring Security 7, Hibernate 7, Jackson 3) backends. Use it to review a diff, branch, PR, file or package for correctness bugs, security issues, JPA/transaction problems, Spring Boot 4 migration leftovers and outdated Java idioms. Read-only it reports findings, it does not edit code.
 tools: Read, Grep, Glob, Bash
 ---
 
