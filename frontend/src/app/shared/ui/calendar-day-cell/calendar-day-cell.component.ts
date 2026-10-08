@@ -1,7 +1,9 @@
 import { Component, computed, input, output } from '@angular/core';
-import { Appointment } from '../../../core/models/appointment.model';
-import { PRIORITY_DOT } from '../../../core/models/priority.util';
+import { AppointmentStatus, AppointmentSummaryItem } from '../../../core/models/api.models';
 import { CalendarDay, toIso } from '../../../core/utils/calendar.util';
+import { STATUS_STYLE } from '../../../core/utils/labels.util';
+
+const STATUS_ORDER: AppointmentStatus[] = ['PENDING', 'CONFIRMED', 'CANCELLED'];
 
 @Component({
   selector: 'app-calendar-day-cell',
@@ -10,15 +12,18 @@ import { CalendarDay, toIso } from '../../../core/utils/calendar.util';
 })
 export class CalendarDayCellComponent {
   day = input.required<CalendarDay>();
-  appointments = input<Appointment[]>([]);
+  appointments = input<AppointmentSummaryItem[]>([]);
   selected = input(false);
 
   select = output<string>();
 
   protected readonly today = toIso(new Date());
 
+  /** One dot per status present that day. */
   protected readonly dotTones = computed(() => {
-    const tones = new Set(this.appointments().map((appointment) => PRIORITY_DOT[appointment.priority]));
-    return [...tones].slice(0, 3);
+    const present = new Set(this.appointments().map((appointment) => appointment.status));
+    // Items without status (older backend) are not dotted.
+    return STATUS_ORDER.filter((status) => present.has(status)).map((status) => STATUS_STYLE[status].dot);
   });
+  protected readonly activeCount = computed(() => this.appointments().filter((appointment) => appointment.status !== 'CANCELLED').length);
 }

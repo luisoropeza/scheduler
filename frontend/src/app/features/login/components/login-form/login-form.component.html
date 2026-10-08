@@ -1,8 +1,16 @@
-<form action="" [formGroup]="form" class="w-full max-w-sm">
+<form [formGroup]="form" (ngSubmit)="submit()" class="w-full max-w-sm">
   <div class="rounded-2xl border border-gray-100 bg-white p-8 shadow-xl shadow-gray-900/5">
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Inicia Sesión</h1>
+      <h1 class="text-2xl font-bold text-gray-900">Inicia sesión</h1>
       <p class="mt-1 text-sm text-gray-500">Ingresa tus credenciales para acceder a tu cuenta</p>
+    </div>
+
+    <div class="mb-5 flex items-center justify-between gap-3 rounded-xl bg-primary/5 px-4 py-3">
+      <div class="min-w-0">
+        <p class="text-xs font-medium text-gray-500">Clínica</p>
+        <p class="truncate text-sm font-semibold text-gray-900">{{ clinic()?.name ?? 'Sin seleccionar' }}</p>
+      </div>
+      <a routerLink="/clinic-options" class="shrink-0 text-xs font-semibold text-primary hover:underline">Cambiar</a>
     </div>
 
     <div class="space-y-4">
@@ -22,14 +30,20 @@
       />
     </div>
 
-    <app-button-component appClickLogin label="Ingresar" [fullWidth]="true" class="mt-6" />
+    <app-button-component type="submit" label="Ingresar" [fullWidth]="true" [loading]="submitting()" class="mt-6" />
 
     <div class="mt-6 flex items-center gap-3">
       <span class="h-px flex-1 bg-gray-200"></span>
-      <span class="text-xs text-gray-400">¿No tienes cuenta?</span>
+      <span class="text-xs text-gray-400">¿Tu clínica aún no usa ClinicFlow?</span>
       <span class="h-px flex-1 bg-gray-200"></span>
     </div>
 
-    <app-button-component label="Crear cuenta" variant="outlined" [fullWidth]="true" (click)="navigate($event)" class="mt-4" />
+    <a
+      routerLink="/register"
+      class="mt-4 flex w-full items-center justify-center rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+    >
+      Registrar clínica
+    </a>
+    <p class="mt-4 text-center text-xs text-gray-400">Los pacientes y el personal son creados por la clínica.</p>
   </div>
 </form>

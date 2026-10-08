@@ -18,11 +18,15 @@
   <!-- Weekly schedule -->
   <section class="glass-panel rounded-3xl p-6">
     <h2 class="mb-4 text-xl font-extrabold text-gray-900">Horario semanal</h2>
-    @if (availabilityResource.isLoading()) {
+    @if (resource.isWeekLoading()) {
       <div class="h-40 animate-pulse rounded-2xl bg-white/50"></div>
+    } @else if (resource.isWeekError()) {
+      <app-empty-state icon="alert" [title]="resource.weekErrorMessage()">
+        <button type="button" class="btn btn-secondary btn-sm" (click)="resource.reloadAvailability()">Reintentar</button>
+      </app-empty-state>
     } @else {
       <div class="grid gap-3 md:grid-cols-4 xl:grid-cols-7">
-        @for (day of week(); track day.value) {
+        @for (day of resource.week(); track day.value) {
           <div class="flex min-h-36 flex-col rounded-2xl bg-white/40 p-3">
             <p class="mb-2.5 text-sm font-extrabold text-gray-800">{{ day.label }}</p>
             <div class="flex flex-1 flex-col gap-2">
@@ -59,7 +63,7 @@
       <h2 class="mb-1 text-xl font-extrabold text-gray-900">Bloqueos próximos</h2>
       <p class="mb-4 text-sm font-medium text-gray-500">Vacaciones, congresos o reuniones</p>
       <div class="space-y-2">
-        @for (exception of exceptionsResource.value() ?? []; track exception.id) {
+        @for (exception of resource.exceptions(); track exception.id) {
           <div class="flex items-center gap-3 rounded-2xl bg-white/50 px-4 py-3">
             <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-tertiary/10 text-tertiary">
               <app-ui-icon name="block" class="h-5 w-5" />
@@ -78,7 +82,7 @@
             </button>
           </div>
         } @empty {
-          @if (!exceptionsResource.isLoading()) {
+          @if (!resource.isExceptionsLoading()) {
             <app-empty-state icon="calendar" title="Sin bloqueos" message="Tu agenda sigue el horario semanal." />
           }
         }
@@ -95,16 +99,16 @@
         <input
           type="date"
           class="field-input !w-auto !py-1.5"
-          [min]="today"
-          [ngModel]="previewDate()"
-          (ngModelChange)="setPreviewDate($event)"
+          [min]="resource.today"
+          [ngModel]="resource.previewDate()"
+          (ngModelChange)="resource.setPreviewDate($event)"
         />
       </div>
-      @if (previewResource.isLoading()) {
+      @if (resource.isPreviewLoading()) {
         <div class="h-24 animate-pulse rounded-2xl bg-white/50"></div>
       } @else {
         <div class="flex flex-wrap gap-2">
-          @for (slot of previewResource.value() ?? []; track slot) {
+          @for (slot of resource.previewSlots(); track slot) {
             <span class="rounded-xl bg-white/70 px-3 py-1.5 text-sm font-bold text-gray-700">{{ slot }}</span>
           } @empty {
             <app-empty-state

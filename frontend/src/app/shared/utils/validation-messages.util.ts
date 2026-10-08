@@ -5,7 +5,7 @@ const VALIDATION_MESSAGES: Record<string, (error: any) => string> = {
   email: () => 'Ingresa un email válido',
   minlength: (error) => `Debe tener al menos ${error.requiredLength} caracteres`,
   maxlength: (error) => `Debe tener como máximo ${error.requiredLength} caracteres`,
-  pattern: () => 'El formato ingresado no es válido',
+  pattern: () => 'El formato ingresado no es válido'
 };
 
 export function getValidationErrorMessage(errors: ValidationErrors | null): string | null {

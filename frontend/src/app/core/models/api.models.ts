@@ -127,18 +127,40 @@ export interface AppointmentResponse {
 }
 
 /** Item of GET /appointments/board and /appointments/calendar. */
+/** `AppointmentSummaryItem` as the backend sends it (board / calendar items). */
+export interface AppointmentSummaryWire {
+  clientName: string;
+  doctorName: string;
+  /** "yyyy-MM-dd" */
+  appointmentDate: string;
+  /** "hh:mm AM" */
+  appointmentTime: string;
+  // Newer backends also send these; the frontend works without them.
+  id?: number;
+  startTime?: string;
+  endTime?: string;
+  status?: AppointmentStatus;
+  doctorId?: number;
+  patientId?: number;
+}
+
+/**
+ * Normalized by `AppointmentsApi`: `startTime` is always set (built from date + time when missing).
+ * `id`/`endTime`/`doctorId`/`patientId` are null when the backend does not send them; without `id`
+ * the item cannot be opened, confirmed or cancelled.
+ */
 export interface AppointmentSummaryItem {
-  id: number;
+  id: number | null;
   clientName: string;
   doctorName: string;
   appointmentDate: string;
-  /** "hh:mm AM" — prefer `startTime` for formatting. */
   appointmentTime: string;
   startTime: string;
-  endTime: string;
-  status: AppointmentStatus;
-  doctorId: number;
-  patientId: number;
+  endTime: string | null;
+  /** Null in the calendar when the backend does not send it (the board derives it from its column). */
+  status: AppointmentStatus | null;
+  doctorId: number | null;
+  patientId: number | null;
 }
 
 export type AppointmentBoard = Record<AppointmentStatus, AppointmentSummaryItem[]>;

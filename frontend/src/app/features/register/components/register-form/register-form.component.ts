@@ -1,41 +1,54 @@
-import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { InputComponentComponent } from '../../../../shared/components/input-component/input-component.component';
-import { SelectComponentComponent } from '../../../../shared/components/select-component/select-component.component';
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { finalize, switchMap, tap } from 'rxjs';
+import { ClinicsApi } from '../../../../core/api/clinics.api';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { apiErrorMessage } from '../../../../core/http/api-error';
 import { ButtonComponentComponent } from '../../../../shared/components/button-component/button-component.component';
 import { InputType } from '../../../../shared/components/input-component/enums/input-type.enum';
-import { ClickRegisterDirective } from "./directives/click-register.directive";
-import { ɵInternalFormsSharedModule, ReactiveFormsModule, FormBuilder } from "@angular/forms";
+import { InputComponentComponent } from '../../../../shared/components/input-component/input-component.component';
+import { NotificationService } from '../../../../shared/services/notification.service';
 import { REGISTER_FORM } from './constants/register-form.constants';
 
+/** Registers a clinic (new tenant) with its administrator, then logs the administrator in. */
 @Component({
   selector: 'app-register-form',
-  imports: [InputComponentComponent, ButtonComponentComponent, ClickRegisterDirective, ɵInternalFormsSharedModule, ReactiveFormsModule],
+  imports: [InputComponentComponent, ButtonComponentComponent, ReactiveFormsModule, RouterLink],
   templateUrl: './register-form.component.html',
   host: { class: 'flex min-h-screen items-center justify-center px-6 py-10' }
 })
 export class RegisterFormComponent {
-  protected inputType = InputType;
-  protected router = inject(Router)
-  private readonly _formBuilder = inject(FormBuilder)
-  protected formGroup = this._formBuilder.group(REGISTER_FORM)
+  private readonly clinicsApi = inject(ClinicsApi);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly notifications = inject(NotificationService);
 
-  protected navigate(e: Event) {
-    e.preventDefault()
-    this.router.navigate(["/login"])
+  protected readonly inputType = InputType;
+  protected readonly submitting = signal(false);
+  protected readonly formGroup = inject(FormBuilder).nonNullable.group(REGISTER_FORM);
+
+  protected submit(): void {
+    if (this.formGroup.invalid) {
+      this.formGroup.markAllAsTouched();
+      return;
+    }
+
+    const request = this.formGroup.getRawValue();
+    this.submitting.set(true);
+    this.clinicsApi
+      .create(request)
+      .pipe(
+        tap((clinic) => this.auth.selectClinic({ id: clinic.id, name: clinic.name, phoneNumber: clinic.phoneNumber })),
+        switchMap((clinic) => this.auth.login(request.adminEmail, request.adminPassword, clinic.id)),
+        finalize(() => this.submitting.set(false))
+      )
+      .subscribe({
+        next: () => {
+          this.notifications.success('¡Clínica registrada! Ya puedes crear a tu personal.');
+          this.router.navigateByUrl(this.auth.homeUrl());
+        },
+        error: (error) => this.notifications.error(apiErrorMessage(error, 'Ocurrió un error al registrar, intenta de nuevo'))
+      });
   }
-  protected rolesData = [
-    { label: 'Doctor', value: 1 },
-    { label: 'Nurse', value: 2 },
-    { label: 'Patient', value: 3 },
-  ];
-  protected specialityData = [
-    { label: 'Cardiology', value: 1 },
-    { label: 'Dermatology', value: 2 },
-    { label: 'Neurology', value: 3 },
-    { label: 'Pediatrics', value: 4 },
-    { label: 'Psychiatry', value: 5 },
-    { label: 'Radiology', value: 6 },
-    { label: 'Surgery', value: 7 },
-  ];
 }

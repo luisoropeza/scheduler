@@ -93,3 +93,5 @@ Verificado en browser: las 4 esquinas de septiembre 2026 (31, 6, 5, 11) con anil
 - `calendar` no usa `date-range-picker` (sigue con `calendar-nav` propio) — fuera de scope, no se pidió.
 - Board no filtra por `doctorId`/`patientId` aún.
 - Board sigue en datos mock, no conectado a `GET /api/appointments/board` real.
+
+> **Actualización 2026-10-05:** board y calendario ya están conectados a la API real (sin mocks); el formulario de nueva cita fue reemplazado por la página `/appointments/new`. Ver [[agenda-api/index]].

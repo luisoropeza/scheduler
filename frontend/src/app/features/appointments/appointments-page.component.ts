@@ -1,12 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AppointmentsApi } from '../../core/api/appointments.api';
 import { AuthService } from '../../core/auth/auth.service';
-import { AppointmentResponse, AppointmentStatus } from '../../core/models/api.models';
 import { ROLES } from '../../core/navigation/navigation';
-import { datePart, formatDayLabel, formatTime } from '../../core/utils/calendar.util';
-import { statusFromDisplay } from '../../core/utils/labels.util';
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header/page-header.component';
 import { PaginationComponent } from '../../shared/ui/pagination/pagination.component';
@@ -14,16 +9,7 @@ import { SegmentedTabsComponent, SegmentedTabItem } from '../../shared/ui/segmen
 import { StatusBadgeComponent } from '../../shared/ui/status-badge/status-badge.component';
 import { UiIconComponent } from '../../shared/ui/ui-icon/ui-icon.component';
 import { AppointmentActionsService } from './appointment-actions.service';
-
-type StatusFilter = AppointmentStatus | 'ALL';
-
-const PAGE_SIZE = 12;
-
-interface AppointmentRow extends AppointmentResponse {
-  statusKey: AppointmentStatus;
-  dayLabel: string;
-  timeLabel: string;
-}
+import { AppointmentRow, AppointmentStatusFilter, AppointmentsResourceService } from './services/appointments-resource.service';
 
 @Component({
   selector: 'app-appointments-page',
@@ -36,13 +22,14 @@ interface AppointmentRow extends AppointmentResponse {
     EmptyStateComponent,
     UiIconComponent
   ],
+  providers: [AppointmentsResourceService],
   templateUrl: './appointments-page.component.html',
   host: { class: 'flex min-h-0 flex-1 flex-col' }
 })
 export class AppointmentsPageComponent {
-  private readonly api = inject(AppointmentsApi);
   private readonly auth = inject(AuthService);
   protected readonly actions = inject(AppointmentActionsService);
+  protected readonly resource = inject(AppointmentsResourceService);
 
   protected readonly isPatient = this.auth.hasRole('PATIENT');
   protected readonly canBook = this.auth.hasRole(...ROLES.booking);
@@ -55,46 +42,21 @@ export class AppointmentsPageComponent {
     { id: 'CANCELLED', label: 'Canceladas' }
   ];
 
-  protected readonly status = signal<StatusFilter>('ALL');
-  protected readonly page = signal(0);
-
-  protected readonly resource = rxResource({
-    request: () => ({ status: this.status(), page: this.page() }),
-    loader: ({ request }) =>
-      this.api.list({
-        status: request.status === 'ALL' ? undefined : request.status,
-        page: request.page,
-        size: PAGE_SIZE,
-        sort: 'startTime,desc'
-      })
-  });
-
-  protected readonly rows = computed<AppointmentRow[]>(() =>
-    (this.resource.value()?.content ?? []).map((appointment) => ({
-      ...appointment,
-      statusKey: statusFromDisplay(appointment.status),
-      dayLabel: formatDayLabel(datePart(appointment.startTime)),
-      timeLabel: `${formatTime(appointment.startTime)} – ${formatTime(appointment.endTime)}`
-    }))
-  );
-  protected readonly pageInfo = computed(() => this.resource.value()?.page);
-
   protected setStatus(id: string): void {
-    this.status.set(id as StatusFilter);
-    this.page.set(0);
+    this.resource.setStatus(id as AppointmentStatusFilter);
   }
 
   protected open(row: AppointmentRow): void {
-    this.actions.openDetail(row.id).subscribe((changed) => changed && this.resource.reload());
+    this.actions.openDetail(row.id).subscribe((changed) => changed && this.resource.reloadAppointments());
   }
 
   protected confirm(row: AppointmentRow, event: Event): void {
     event.stopPropagation();
-    this.actions.confirm(row.id, row.patientName).subscribe(() => this.resource.reload());
+    this.actions.confirm(row.id, row.patientName).subscribe(() => this.resource.reloadAppointments());
   }
 
   protected cancel(row: AppointmentRow, event: Event): void {
     event.stopPropagation();
-    this.actions.cancel(row.id, row.patientName).subscribe(() => this.resource.reload());
+    this.actions.cancel(row.id, row.patientName).subscribe(() => this.resource.reloadAppointments());
   }
 }

@@ -20,3 +20,7 @@ frontend/playwright-report/
 backend/.gradle/
 backend/build/
 backend/bin/
+*.log
+
+# Claude Code personal overrides
+.claude/settings.local.json

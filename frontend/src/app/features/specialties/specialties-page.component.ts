@@ -1,5 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { CatalogsApi } from '../../core/api/catalogs.api';
@@ -8,19 +7,19 @@ import { NotificationService } from '../../shared/services/notification.service'
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header/page-header.component';
 import { UiIconComponent } from '../../shared/ui/ui-icon/ui-icon.component';
+import { SpecialtiesResourceService } from './services/specialties-resource.service';
 
 @Component({
   selector: 'app-specialties-page',
   imports: [FormsModule, PageHeaderComponent, EmptyStateComponent, UiIconComponent],
+  providers: [SpecialtiesResourceService],
   templateUrl: './specialties-page.component.html',
   host: { class: 'flex min-h-0 flex-1 flex-col' }
 })
 export class SpecialtiesPageComponent {
   private readonly api = inject(CatalogsApi);
   private readonly notifications = inject(NotificationService);
-
-  protected readonly resource = rxResource({ loader: () => this.api.specialties() });
-  protected readonly specialties = computed(() => this.resource.value() ?? []);
+  protected readonly resource = inject(SpecialtiesResourceService);
 
   protected readonly name = signal('');
   protected readonly saving = signal(false);
@@ -36,7 +35,7 @@ export class SpecialtiesPageComponent {
         next: () => {
           this.notifications.success(`Especialidad "${name}" creada`);
           this.name.set('');
-          this.resource.reload();
+          this.resource.reloadSpecialties();
         },
         error: (error) => this.notifications.error(apiErrorMessage(error, 'No se pudo crear la especialidad'))
       });

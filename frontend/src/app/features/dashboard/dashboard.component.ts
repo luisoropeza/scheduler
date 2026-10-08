@@ -114,6 +114,7 @@ export class DashboardComponent {
   ];
 
   protected open(appointment: AppointmentSummaryItem): void {
+    if (appointment.id === null) return;
     this.actions.openDetail(appointment.id).subscribe((changed) => changed && this.weekResource.reload());
   }
 }

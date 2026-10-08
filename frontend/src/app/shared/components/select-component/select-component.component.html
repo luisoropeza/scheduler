@@ -1,7 +1,5 @@
 <div class="my-2 relative">
-  <label [ngClass]="{ required: isRequired() }" for="input">{{
-    label()
-  }}</label>
+  <label [ngClass]="{ required: isRequired() }" for="input">{{ label() }}</label>
 
   <button
     type="button"
@@ -27,9 +25,7 @@
   @if (isOpen()) {
     <div class="fixed inset-0 z-10" (click)="close()"></div>
 
-    <div
-      class="absolute z-20 mt-1 w-full bg-white border border-neutral-400 rounded-lg shadow-lg overflow-hidden"
-    >
+    <div class="absolute z-20 mt-1 w-full bg-white border border-neutral-400 rounded-lg shadow-lg overflow-hidden">
       @if (isSearchable()) {
         <input
           type="text"
@@ -42,10 +38,7 @@
 
       <div class="max-h-60 overflow-y-auto">
         @for (item of data(); track item) {
-          <div
-            (click)="select(item)"
-            class="p-2 cursor-pointer hover:bg-neutral-100"
-          >
+          <div (click)="select(item)" class="p-2 cursor-pointer hover:bg-neutral-100">
             {{ item.label }}
           </div>
         }

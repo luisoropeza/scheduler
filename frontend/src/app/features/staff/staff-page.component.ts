@@ -1,5 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import { Dialog } from '@angular/cdk/dialog';
 import { FormsModule } from '@angular/forms';
 import { filter, switchMap } from 'rxjs';
@@ -16,13 +15,13 @@ import { PaginationComponent } from '../../shared/ui/pagination/pagination.compo
 import { SegmentedTabItem, SegmentedTabsComponent } from '../../shared/ui/segmented-tabs/segmented-tabs.component';
 import { UiIconComponent } from '../../shared/ui/ui-icon/ui-icon.component';
 import { StaffFormData, StaffFormDialogComponent } from './staff-form-dialog.component';
-
-const PAGE_SIZE = 12;
+import { StaffResourceService } from './services/staff-resource.service';
 
 /** ADMINISTRATOR: doctors and assistants of the clinic (backend `/api/personal`). */
 @Component({
   selector: 'app-staff-page',
   imports: [FormsModule, PageHeaderComponent, SegmentedTabsComponent, PaginationComponent, EmptyStateComponent, UiIconComponent],
+  providers: [StaffResourceService],
   templateUrl: './staff-page.component.html',
   host: { class: 'flex min-h-0 flex-1 flex-col' }
 })
@@ -32,6 +31,7 @@ export class StaffPageComponent {
   private readonly dialog = inject(Dialog);
   private readonly confirm = inject(ConfirmService);
   private readonly notifications = inject(NotificationService);
+  protected readonly resource = inject(StaffResourceService);
 
   protected readonly roleLabel = ROLE_LABEL;
   protected readonly initials = initials;
@@ -42,41 +42,13 @@ export class StaffPageComponent {
     { id: String(ROLE_ID.ASSISTANT), label: 'Asistentes' }
   ];
 
-  protected readonly roleFilter = signal('all');
-  protected readonly onlyActive = signal(true);
-  protected readonly page = signal(0);
-
-  protected readonly resource = rxResource({
-    request: () => ({ role: this.roleFilter(), onlyActive: this.onlyActive(), page: this.page() }),
-    loader: ({ request }) =>
-      this.api.list({
-        roleId: request.role === 'all' ? undefined : Number(request.role),
-        isActive: request.onlyActive ? true : undefined,
-        page: request.page,
-        size: PAGE_SIZE,
-        sort: 'id'
-      })
-  });
-  protected readonly rows = computed(() => this.resource.value()?.content ?? []);
-  protected readonly pageInfo = computed(() => this.resource.value()?.page);
-
-  protected setRole(role: string): void {
-    this.roleFilter.set(role);
-    this.page.set(0);
-  }
-
-  protected setOnlyActive(value: boolean): void {
-    this.onlyActive.set(value);
-    this.page.set(0);
-  }
-
   protected openForm(staff?: Staff): void {
     this.dialog
       .open<Staff, StaffFormData>(StaffFormDialogComponent, { data: { staff }, backdropClass: 'glass-backdrop' })
       .closed.pipe(filter(Boolean))
       .subscribe(() => {
         this.notifications.success(staff ? 'Datos actualizados' : 'Miembro del personal creado');
-        this.resource.reload();
+        this.resource.reloadStaff();
       });
   }
 
@@ -95,7 +67,7 @@ export class StaffPageComponent {
       .subscribe({
         next: () => {
           this.notifications.success('Cuenta desactivada');
-          this.resource.reload();
+          this.resource.reloadStaff();
         },
         error: (error) => this.notifications.error(apiErrorMessage(error))
       });
