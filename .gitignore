@@ -10,3 +10,13 @@ Thumbs.db
 *.iml
 .vscode/*
 !.vscode/extensions.json
+
+# dependencies & build output
+node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/test-results/
+frontend/playwright-report/
+backend/.gradle/
+backend/build/
+backend/bin/

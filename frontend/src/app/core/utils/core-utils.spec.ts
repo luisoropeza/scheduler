@@ -1,0 +1,71 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { apiErrorMessage } from '../http/api-error';
+import { toHttpParams } from '../http/http-params.util';
+import { addMinutesToTime, buildMonthMatrix, calendarKeyToIso, formatTime, startOfWeek, toIso, toLocalDateTime } from './calendar.util';
+import { dayOfWeekOf, initials, statusFromDisplay } from './labels.util';
+
+describe('calendar.util', () => {
+  it('formats backend LocalTime and LocalDateTime as HH:mm', () => {
+    expect(formatTime('08:30:00')).toBe('08:30');
+    expect(formatTime('2026-10-06T14:00:00')).toBe('14:00');
+  });
+
+  it('builds backend LocalDateTime without timezone shift', () => {
+    expect(toLocalDateTime('2026-10-06', '08:00:00')).toBe('2026-10-06T08:00:00');
+  });
+
+  it('adds slot minutes across the hour', () => {
+    expect(addMinutesToTime('08:45', 30)).toBe('09:15');
+  });
+
+  it('converts calendar keys (MM-dd-yyyy) to ISO', () => {
+    expect(calendarKeyToIso('10-06-2026')).toBe('2026-10-06');
+  });
+
+  it('uses local dates for ISO strings', () => {
+    expect(toIso(new Date(2026, 0, 5))).toBe('2026-01-05');
+  });
+
+  it('starts weeks on Monday and always renders 6 weeks', () => {
+    expect(toIso(startOfWeek(new Date(2026, 9, 11)))).toBe('2026-10-05');
+    const weeks = buildMonthMatrix(2026, 9);
+    expect(weeks.length).toBe(6);
+    expect(weeks[0][0].iso).toBe('2026-09-28');
+  });
+});
+
+describe('labels.util', () => {
+  it('maps display statuses to enum values', () => {
+    expect(statusFromDisplay('Pendiente')).toBe('PENDING');
+    expect(statusFromDisplay('Confirmado')).toBe('CONFIRMED');
+    expect(statusFromDisplay('CANCELLED')).toBe('CANCELLED');
+  });
+
+  it('maps JS days to backend DayOfWeek', () => {
+    expect(dayOfWeekOf(new Date(2026, 9, 5))).toBe('MONDAY');
+    expect(dayOfWeekOf(new Date(2026, 9, 11))).toBe('SUNDAY');
+  });
+
+  it('builds initials ignoring the doctor prefix', () => {
+    expect(initials('Dr. Ana García')).toBe('AG');
+    expect(initials(null)).toBe('?');
+  });
+});
+
+describe('http helpers', () => {
+  it('omits empty query params', () => {
+    const params = toHttpParams({ a: 1, b: undefined, c: null, d: '', e: false });
+    expect(params.keys()).toEqual(['a', 'e']);
+  });
+
+  it('translates known backend errors', () => {
+    const error = new HttpErrorResponse({ status: 406, error: { status: 406, message: 'That slot is already taken', errors: null } });
+    expect(apiErrorMessage(error)).toBe('Ese horario ya fue reservado, elige otro');
+  });
+
+  it('prefers field validation messages and falls back per status', () => {
+    const validation = new HttpErrorResponse({ status: 400, error: { message: 'Validation failed', errors: ['no debe ser nulo'] } });
+    expect(apiErrorMessage(validation)).toBe('no debe ser nulo');
+    expect(apiErrorMessage(new HttpErrorResponse({ status: 0 }))).toBe('No se pudo conectar con el servidor');
+  });
+});
