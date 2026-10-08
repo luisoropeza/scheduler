@@ -2,6 +2,7 @@ package com.example.scheduler.config;
 
 import com.example.scheduler.exception.ErrorResponse;
 import com.example.scheduler.middleware.JwtAuthFilter;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +22,6 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 
 @Configuration
 @EnableWebSecurity
@@ -47,20 +47,16 @@ public class SecurityConfig {
                     a.anyRequest().authenticated();
                 })
                 .exceptionHandling(e -> e
-                        .authenticationEntryPoint((_, res, _) -> writeError(res, HttpStatus.UNAUTHORIZED, "Unauthorized"))
-                        .accessDeniedHandler((_, res, _) -> writeError(res, HttpStatus.FORBIDDEN, "Forbidden")))
+                        .authenticationEntryPoint((req, res, _) -> writeError(req, res, HttpStatus.UNAUTHORIZED, "Authentication required"))
+                        .accessDeniedHandler((req, res, _) -> writeError(req, res, HttpStatus.FORBIDDEN, "Access denied")))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .build();
     }
 
-    private void writeError(HttpServletResponse response, HttpStatus status, String message) throws IOException {
-        var body = ErrorResponse.builder()
-                .status(status.value())
-                .message(message)
-                .timestamp(LocalDateTime.now())
-                .build();
+    private void writeError(HttpServletRequest request, HttpServletResponse response, HttpStatus status, String message) throws IOException {
+        var body = ErrorResponse.of(status, message, request.getRequestURI());
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());

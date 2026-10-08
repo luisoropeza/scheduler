@@ -1,7 +1,9 @@
 package com.example.scheduler.exception;
 
-public class BusinessException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class BusinessException extends ApiException {
     public BusinessException(String message) {
-        super(message);
+        super(HttpStatus.NOT_ACCEPTABLE, message);
     }
 }
