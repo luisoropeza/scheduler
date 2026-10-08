@@ -1,32 +1,45 @@
 <div class="min-h-screen bg-neutral px-6 py-10">
   <div class="mx-auto max-w-5xl">
-    <h1 class="text-3xl font-bold text-gray-900">Selecciona una clínica activa</h1>
-    <p class="mt-2 max-w-2xl text-sm text-gray-500">
-      Elige una ubicación para acceder a tableros especializados de pacientes, calendarios y análisis específicos por
-      departamento.
-    </p>
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <div class="mb-5 flex items-center gap-2 text-primary">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-white">CF</div>
+          <span class="text-lg font-semibold text-gray-900">ClinicFlow</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900">Selecciona tu clínica</h1>
+        <p class="mt-2 max-w-2xl text-sm text-gray-500">
+          Cada clínica tiene su propio espacio de trabajo con pacientes, agenda y personal. Elige a cuál quieres ingresar.
+        </p>
+      </div>
+      <a routerLink="/register" class="text-sm font-semibold text-primary hover:underline">¿Tu clínica no está? Regístrala</a>
+    </div>
 
     <div class="mt-8 border-t border-gray-200"></div>
 
-    @if (isLoading()) {
+    @if (resource.isLoading()) {
       <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         @for (i of [1, 2, 3]; track i) {
-          <div class="h-56 animate-pulse rounded-xl border border-gray-200 bg-white"></div>
+          <div class="h-48 animate-pulse rounded-xl border border-gray-200 bg-white"></div>
         }
       </div>
-    } @else if (clinics().length) {
+    } @else if (resource.isError()) {
+      <div class="mt-8 rounded-xl border border-red-100 bg-red-50 p-5 text-sm text-red-700">
+        No pudimos cargar las clínicas. Verifica que el servidor esté disponible.
+        <button type="button" class="ml-2 cursor-pointer font-semibold underline" (click)="resource.reloadClinics()">Reintentar</button>
+      </div>
+    } @else if (resource.clinics().length) {
       <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        @for (clinic of clinics(); track clinic.id; let i = $index; let first = $first) {
+        @for (clinic of resource.clinics(); track clinic.id; let i = $index) {
           <app-clinic-option-card
             [clinic]="clinic"
-            [highlighted]="first"
+            [highlighted]="clinic.id === lastClinicId"
             [accent]="accents[i % accents.length]"
             (select)="selectClinic($event)"
           />
         }
       </div>
     } @else {
-      <p class="mt-8 text-sm text-gray-400">No tienes clínicas asignadas todavía.</p>
+      <p class="mt-8 text-sm text-gray-400">Todavía no hay clínicas registradas.</p>
     }
   </div>
 </div>

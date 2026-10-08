@@ -1,20 +1,20 @@
-<div class="glass-card cursor-grab rounded-2xl p-[18px] active:cursor-grabbing">
+<div class="glass-card rounded-2xl p-[18px]" [class]="draggable() ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'">
   <p class="mb-2 text-[16.5px] font-bold leading-tight text-gray-900">{{ appointment().clientName }}</p>
 
-  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] font-medium text-gray-500">
-    <span class="inline-flex items-center gap-1.5">
-      <svg class="h-[15px] w-[15px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3.2 2" />
-      </svg>
-      {{ appointment().appointmentTime }}
-    </span>
-    @if (appointment().doctorName) {
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13.5px] font-medium text-gray-500">
+    @if (showDate()) {
       <span class="inline-flex items-center gap-1.5">
-        <svg class="h-[15px] w-[15px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="8" r="3.2" /><path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
-        </svg>
-        {{ appointment().doctorName }}
+        <app-ui-icon name="calendar" class="h-[15px] w-[15px]" />
+        {{ dayLabel() }}
       </span>
     }
+    <span class="inline-flex items-center gap-1.5">
+      <app-ui-icon name="clock" class="h-[15px] w-[15px]" />
+      {{ timeLabel() }}
+    </span>
+    <span class="inline-flex items-center gap-1.5">
+      <app-ui-icon name="stethoscope" class="h-[15px] w-[15px]" />
+      {{ appointment().doctorName }}
+    </span>
   </div>
 </div>

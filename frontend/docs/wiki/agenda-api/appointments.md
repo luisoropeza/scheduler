@@ -2,78 +2,35 @@
 title: Agenda API — Appointments
 ---
 
-Parte de [[agenda-api/index]]. Auth: ver [[agenda-api/auth]]. Slots: ver [[agenda-api/schedules]]. Errores: ver [[agenda-api/errors]]. Panel admin: ver [[agenda-api/admin-board]].
+Parte de [[agenda-api/index]]. Disponibilidad: [[agenda-api/availability]]. Errores: [[agenda-api/errors]]. Cliente: `AppointmentsApi`.
 
-## Crear cita
+## Reservar
 
-`POST /api/appointments` — cualquier rol autenticado.
+`POST /api/appointments` — DOCTOR, ASSISTANT, PATIENT.
 
-Body (AppointmentRequest):
 ```json
-{ "scheduleId": 0, "patientId": 0 }
+{ "doctorId": 2, "patientId": 1, "startTime": "2026-10-06T08:00:00", "endTime": "2026-10-06T08:30:00" }
 ```
-Ambos campos requeridos.
 
-- Si caller role = PATIENT: `patientId` en body DEBE coincidir con id propio del caller (JWT `sub`), si no 403. Resultado: status = PENDING.
-- Si caller role != PATIENT (staff reservando por paciente): resultado: status = CONFIRMED directo (salta PENDING).
-- Falla 406 si slot no está AVAILABLE o si hora inicio del slot ya pasó. Ver [[agenda-api/errors]].
+- PATIENT: `patientId` se fuerza al propio → estado **PENDING**.
+- DOCTOR: `doctorId` se fuerza al propio → **CONFIRMED**. ASSISTANT → **CONFIRMED**.
+- 406 si la fecha es pasada, está bloqueada, cae fuera de la jornada o se solapa con otra cita. 404 si el doctor o paciente no existe o está inactivo.
+- `endTime` = inicio + `slotDurationMinutes` del bloque de disponibilidad que contiene el horario (el front lo calcula).
 
-## Detalle cita
+## Consultar
 
-`GET /api/appointments/{appointmentId}` — cualquier rol autenticado, pero DOCTOR solo ve las propias, PATIENT solo ve las propias (403 si no).
+- `GET /api/appointments?doctorId&patientId&status&page&size&sort` → `Page<AppointmentResponse>`. DOCTOR/PATIENT ven solo las suyas. Sort típico: `startTime,desc`.
+- `GET /api/appointments/{id}` — DOCTOR/PATIENT solo las propias (403).
 
-## Listar citas
+## Confirmar / cancelar
 
-`GET /api/appointments?doctorId&patientId&status&page&size&sort`
-
-- Role DOCTOR: `doctorId` forzado al caller.
-- Role PATIENT: `patientId` forzado al caller.
-- Otros roles: filtros libres.
-
-`status` enum: `PENDING`, `CONFIRMED`, `CANCELLED`.
-
-## Confirmar cita
-
-`PATCH /api/appointments/{appointmentId}/confirm` — solo roles DOCTOR, RECEPTIONIST.
-
-## Cancelar cita
-
-`PATCH /api/appointments/{appointmentId}/cancel` — solo roles DOCTOR, RECEPTIONIST. Libera el slot de vuelta a AVAILABLE.
-
-## Reagendar cita
-
-`PATCH /api/appointments/{appointmentId}/reschedule` — solo roles DOCTOR, RECEPTIONIST.
-
-Body:
-```json
-{ "scheduleId": 0 }
-```
-Sin `@NotNull` en servidor — enviar null causa 500 crudo, no 400. Validar en cliente también.
-
-Mueve la cita a otro Schedule row — el nuevo schedule puede pertenecer a doctor DIFERENTE del original sin check extra. Acción "reasignar a otro doctor" en UI usaría este mismo endpoint.
-
-## Gap: no hay endpoints PATIENT-facing
-
-Confirmar/cancelar/reagendar son staff-only en código actual. No existe endpoint para que paciente cancele/reagende su propia cita. Si el flujo cliente lo necesita, hay que pedirlo a backend.
+`PATCH /api/appointments/{id}/confirm` (solo desde PENDING) y `PATCH /api/appointments/{id}/cancel` — DOCTOR (propias) y ASSISTANT.
 
 ## AppointmentResponse
 
 ```json
-{
-  "id": 0,
-  "scheduleId": 0,
-  "scheduleStart": "ISO datetime",
-  "scheduleEnd": "ISO datetime",
-  "doctorId": 0,
-  "doctorName": "string",
-  "doctorSpecialty": "string",
-  "doctorEmail": "string",
-  "clientId": 0,
-  "clientName": "string",
-  "clientEmail": "string",
-  "status": "Pendiente | Confirmado | Cancelado",
-  "createdAt": "ISO datetime"
-}
+{ "id": 1, "startTime": "…", "endTime": "…", "doctorId": 2, "doctorName": "…", "doctorSpecialty": "…", "doctorEmail": "…",
+  "patientId": 1, "patientName": "…", "patientEmail": "…", "status": "Confirmado", "createdAt": "…" }
 ```
 
-**Ojo:** `status` en response = string español (display), no enum crudo. Filtro `?status=` usa enum crudo `PENDING`/`CONFIRMED`/`CANCELLED`.
+`status` viene en español (display); los filtros usan el enum `PENDING | CONFIRMED | CANCELLED` (`statusFromDisplay` en el front).

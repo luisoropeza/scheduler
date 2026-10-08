@@ -1,7 +1,5 @@
 <div>
-  <label [ngClass]="{ required: isRequired() }" for="input" class="mb-1.5 block text-sm font-medium text-gray-700">{{
-    label()
-  }}</label>
+  <label [ngClass]="{ required: isRequired() }" for="input" class="mb-1.5 block text-sm font-medium text-gray-700">{{ label() }}</label>
   <input
     [type]="type()"
     class="w-full rounded-lg border px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 transition-colors focus:outline-none focus:ring-2"

@@ -4,8 +4,6 @@ import { IconComponent } from '../../../../shared/ui/icon/icon.component';
 @Component({
   selector: 'app-banner',
   imports: [IconComponent],
-  templateUrl: './banner.component.html',
+  templateUrl: './banner.component.html'
 })
-export class BannerComponent {
-
-}
+export class BannerComponent {}

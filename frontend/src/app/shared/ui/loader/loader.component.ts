@@ -4,7 +4,7 @@ import { LoaderService } from '../../services/loader.service';
 @Component({
   selector: 'app-loader',
   imports: [],
-  templateUrl: './loader.component.html',
+  templateUrl: './loader.component.html'
 })
 export class LoaderComponent {
   private readonly _loaderService = inject(LoaderService);

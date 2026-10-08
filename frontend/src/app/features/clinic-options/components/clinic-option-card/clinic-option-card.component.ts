@@ -1,7 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 import { IconComponent } from '../../../../shared/ui/icon/icon.component';
 import { ButtonComponentComponent } from '../../../../shared/components/button-component/button-component.component';
-import { clinicOptions } from '../../interfaces/clinic-options.interface';
+import { Clinic } from '../../../../core/models/api.models';
 
 export type CardAccent = 'primary' | 'secondary' | 'tertiary';
 
@@ -18,11 +18,12 @@ const ACCENT_CLASSES: Record<CardAccent, { badge: string; icon: string }> = {
   host: { class: 'block h-full' }
 })
 export class ClinicOptionCardComponent {
-  clinic = input.required<clinicOptions>();
+  clinic = input.required<Clinic>();
+  /** Marks the clinic used last time on this device. */
   highlighted = input(false);
   accent = input<CardAccent>('primary');
 
-  select = output<clinicOptions>();
+  select = output<Clinic>();
 
   protected readonly accentClasses = computed(() => ACCENT_CLASSES[this.accent()]);
 }

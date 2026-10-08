@@ -1,19 +1,12 @@
 import { DestroyRef, Directive, inject, Injector, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  ControlValueAccessor,
-  FormControl,
-  FormControlDirective,
-  FormControlName,
-  FormGroupDirective,
-  NgControl,
-} from '@angular/forms';
+import { ControlValueAccessor, FormControl, FormControlDirective, FormControlName, FormGroupDirective, NgControl } from '@angular/forms';
 
 import { distinctUntilChanged, tap } from 'rxjs';
 
 @Directive({
   selector: '[appControlValueAccesor]',
-  standalone: true,
+  standalone: true
 })
 export class ControlValueAccesorDirective<T> implements ControlValueAccessor, OnInit {
   public control!: FormControl;

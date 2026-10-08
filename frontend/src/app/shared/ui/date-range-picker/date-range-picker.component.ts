@@ -26,7 +26,7 @@ export class DateRangePickerComponent {
 
   rangeChange = output<DateRange>();
 
-  protected readonly weekdayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  protected readonly weekdayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
   protected readonly today = toIso(new Date());
 
   protected readonly isOpen = signal(false);
