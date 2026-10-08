@@ -6,9 +6,6 @@ import { NotificationComponent } from './shared/ui/notification/notification.com
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, LoaderComponent, NotificationComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  templateUrl: './app.component.html'
 })
-export class AppComponent {
-  title = 'scheduler-front';
-}
+export class AppComponent {}

@@ -1,12 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-primary: #0056b3;
   --color-secondary: #00a3a3;
   --color-tertiary: #973c00;
   --color-neutral: #f8f9fa;
-  --font-sans: "Inter", sans-serif;
+  --font-sans: 'Inter', sans-serif;
 }
 
 .cdk-drag-preview {
@@ -50,7 +50,9 @@
     0 6px 16px -8px rgb(15 23 42 / 12%),
     inset 0 1px 0 rgb(255 255 255 / 70%);
   transform: rotate(var(--tilt, 0deg));
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease;
 }
 
 .glass-card:hover {
@@ -68,11 +70,11 @@
 }
 
 /* Board cards get a playful resting tilt that straightens on hover. */
-app-board-card:nth-of-type(3n+2) {
+app-board-card:nth-of-type(3n + 2) {
   --tilt: -1.4deg;
 }
 
-app-board-card:nth-of-type(3n+3) {
+app-board-card:nth-of-type(3n + 3) {
   --tilt: 1.2deg;
 }
 
@@ -98,4 +100,74 @@ app-board-card:nth-of-type(3n+3) {
   background: rgb(15 23 42 / 35%);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+}
+
+/* ── Design system primitives ────────────────────────────────────────────────
+   Reusable classes for the glass UI. Prefer these over repeating long utility strings
+   in templates; add new variants here instead of one-off styles in components. */
+
+@layer components {
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-bold whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white shadow-lg shadow-primary/30 hover:bg-primary/90;
+  }
+
+  .btn-secondary {
+    @apply border border-white/70 bg-white/50 text-gray-700 shadow-sm backdrop-blur-xl hover:bg-white/75;
+  }
+
+  .btn-danger {
+    @apply bg-red-50 text-red-600 hover:bg-red-100;
+  }
+
+  .btn-ghost {
+    @apply text-gray-500 hover:bg-white/60 hover:text-gray-800;
+  }
+
+  .btn-sm {
+    @apply rounded-xl px-3 py-1.5 text-xs;
+  }
+
+  .btn-icon {
+    @apply inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-white/70 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-xs font-bold tracking-wide text-gray-500;
+  }
+
+  .field-input {
+    @apply w-full rounded-2xl border border-gray-900/10 bg-gray-900/[0.04] px-4 py-2.5 text-sm text-gray-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)] transition-colors placeholder:text-gray-400 focus:border-primary/40 focus:bg-white focus:shadow-none focus:ring-2 focus:ring-primary/30 focus:outline-none disabled:opacity-60;
+  }
+
+  .field-input.ng-invalid.ng-touched {
+    @apply border-red-300 focus:ring-red-200;
+  }
+
+  .field-error {
+    @apply mt-1.5 text-xs font-medium text-red-500;
+  }
+
+  .data-table {
+    @apply w-full border-separate border-spacing-0 text-left text-sm;
+  }
+
+  .data-table th {
+    @apply sticky top-0 z-[1] bg-white/60 px-4 py-3 text-xs font-bold tracking-wide text-gray-500 uppercase backdrop-blur-md first:rounded-l-2xl last:rounded-r-2xl;
+  }
+
+  .data-table td {
+    @apply border-b border-gray-900/[0.05] px-4 py-3.5 font-medium text-gray-700;
+  }
+
+  .data-table tbody tr {
+    @apply transition-colors hover:bg-white/50;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap;
+  }
 }

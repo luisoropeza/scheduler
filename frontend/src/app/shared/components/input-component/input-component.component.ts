@@ -11,7 +11,7 @@ import { getValidationErrorMessage } from '../../utils/validation-messages.util'
   imports: [NgClass, ReactiveFormsModule],
   templateUrl: './input-component.component.html',
   styleUrl: './input-component.component.scss',
-  providers: [INPUT_VALUE_ACCESSOR_PROVIDER],
+  providers: [INPUT_VALUE_ACCESSOR_PROVIDER]
 })
 export class InputComponentComponent<T> extends ControlValueAccesorDirective<T> {
   label = input.required<string>();

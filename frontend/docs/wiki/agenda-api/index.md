@@ -1,25 +1,22 @@
 ---
-title: Agenda API (scheduler-back)
+title: Agenda API (scheduler backend)
 ---
 
-Documentación API de scheduler-back, scope agenda: reserva citas (cliente) + panel Kanban (administrativo). Fuente: sesión scheduler-back, verificado contra código fuente (no CLAUDE.md, desactualizado en algunos puntos). Fecha: 2026-09-24.
+API del backend tal como la consume el frontend. Verificado contra el código y contra la API en ejecución el 2026-10-05 (reemplaza la versión del 2026-09-24, que describía un modelo de "schedules" que ya no existe).
 
-Swagger UI: `/swagger-ui/**` · Spec: `/v3/api-docs` (ambos públicos, sin auth).
+Swagger UI: `/swagger-ui/index.html` · Spec: `/v3/api-docs` (públicos).
 
 ## Contenido
 
-- [[agenda-api/auth]] — login, JWT, roles
-- [[agenda-api/doctors-specialties]] — listado doctores y especialidades
-- [[agenda-api/schedules]] — slots de horario (crear, listar, borrar)
-- [[agenda-api/appointments]] — citas (crear, confirmar, cancelar, reagendar)
-- [[agenda-api/admin-board]] — endpoints Kanban/calendario para administrativos
-- [[agenda-api/errors]] — códigos de error y casos especiales
+- [[agenda-api/auth]] — login, JWT, roles, perfil
+- [[agenda-api/doctors-specialties]] — doctores, personal y especialidades
+- [[agenda-api/availability]] — disponibilidad semanal, bloqueos y horarios libres
+- [[agenda-api/appointments]] — reservar, listar, confirmar, cancelar
+- [[agenda-api/admin-board]] — tablero Kanban y calendario
+- [[agenda-api/errors]] — códigos de error
 
 ## Gaps conocidos (pendientes backend)
 
-- No hay endpoints PATIENT-facing para cancelar/reagendar cita propia (solo DOCTOR/RECEPTIONIST).
-- `/api/appointments/board` no devuelve `id` en items — no se puede linkear tarjeta Kanban a cita sin llamar `/api/appointments` aparte.
-- Conflictos de reserva (race condition) devuelven 500 crudo, no 406/409.
-- `reschedule` con `scheduleId` null/faltante devuelve 500 crudo, no 400.
-
-Ver [[agenda-api/errors]] para detalle.
+- No hay reagendar ni cancelación por parte del paciente.
+- No hay búsqueda de pacientes en servidor ni cambio de contraseña.
+- El chat IA requiere `GEMINI_API_KEY` real.

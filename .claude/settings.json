@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install*)",
+      "Bash(pnpm build*)",
+      "Bash(pnpm test*)",
+      "Bash(pnpm format*)",
+      "Bash(pnpm e2e*)",
+      "Bash(pnpm exec prettier*)",
+      "Bash(npx ng build*)",
+      "Bash(npx ng serve*)",
+      "Bash(npx ng test*)",
+      "Bash(npx -y pnpm@10.33.2 *)",
+      "Bash(./gradlew compileJava*)",
+      "Bash(./gradlew test*)",
+      "Bash(./gradlew bootRun*)",
+      "Bash(./gradlew build*)",
+      "Bash(docker compose up*)",
+      "Bash(docker compose ps*)",
+      "Bash(docker compose logs*)",
+      "Bash(docker ps*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git ls-files*)",
+      "Bash(curl -s http://localhost:8080/*)"
+    ],
+    "deny": ["Read(./backend/.env)", "Read(./**/.env.local)"]
+  },
+  "enabledMcpjsonServers": ["angular-cli", "playwright"],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-context.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-protected-files.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/format-frontend.mjs\"",
+            "timeout": 30,
+            "statusMessage": "Formatting with Prettier"
+          }
+        ]
+      }
+    ]
+  }
+}

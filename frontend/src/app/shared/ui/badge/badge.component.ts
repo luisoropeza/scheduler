@@ -21,7 +21,10 @@ const SOLID_CLASSES: Record<BadgeTone, string> = {
 
 @Component({
   selector: 'app-badge',
-  template: `<span class="inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold" [class]="classes()">
+  template: `<span
+    class="inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold"
+    [class]="classes()"
+  >
     <ng-content />
   </span>`
 })
@@ -29,7 +32,5 @@ export class BadgeComponent {
   tone = input<BadgeTone>('neutral');
   variant = input<BadgeVariant>('soft');
 
-  protected classes = computed(() =>
-    this.variant() === 'solid' ? SOLID_CLASSES[this.tone()] : SOFT_CLASSES[this.tone()]
-  );
+  protected classes = computed(() => (this.variant() === 'solid' ? SOLID_CLASSES[this.tone()] : SOFT_CLASSES[this.tone()]));
 }

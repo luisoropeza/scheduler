@@ -3,7 +3,7 @@
 </app-page-header>
 
 <div class="flex min-h-0 flex-1 gap-5">
-  <div class="glass-panel flex min-h-0 flex-[2.1] flex-col rounded-3xl p-6">
+  <div class="glass-panel flex min-h-0 flex-[2.1] flex-col rounded-3xl p-6" [class.opacity-70]="resource.isLoading()">
     <div class="mb-2 grid shrink-0 grid-cols-7 gap-2 text-center text-[12.5px] font-bold tracking-wide text-gray-500">
       @for (label of weekdayLabels; track label) {
         <span>{{ label }}</span>
@@ -22,11 +22,18 @@
         }
       }
     </div>
+
+    @if (resource.error()) {
+      <p class="mt-3 text-sm font-medium text-red-600">No se pudo cargar el calendario.</p>
+    }
   </div>
 
   <app-day-agenda-panel
     [dayLabel]="selectedDayLabel()"
     [appointments]="selectedDayAppointments()"
+    [canCreate]="canCreateOnSelected()"
+    [doctorAsTitle]="isPatient"
     (newAppointment)="openNewAppointment()"
+    (open)="open($event)"
   />
 </div>

@@ -1,33 +1,25 @@
 ---
-title: Agenda API — Panel Admin (Kanban / Calendario)
+title: Agenda API — Tablero (Kanban) y Calendario
 ---
 
 Parte de [[agenda-api/index]]. Ver también [[agenda-api/appointments]].
 
-## Board (Kanban)
+## Board
 
-`GET /api/appointments/board?from={ISO date}&to={ISO date}&doctorId&patientId`
+`GET /api/appointments/board?from=yyyy-MM-dd&to=yyyy-MM-dd&doctorId&patientId` — cualquier rol autenticado (DOCTOR/PATIENT forzados a lo propio).
 
-Cualquier rol autenticado (mismas reglas de forzado doctorId/patientId que en `/api/appointments` para caller DOCTOR/PATIENT).
-
-Response: `Map<AppointmentStatus, List<AppointmentSummaryItem>>` — keys son nombres de enum crudo `PENDING`/`CONFIRMED`/`CANCELLED` (no display string), siempre las 3 keys presentes aunque vacías.
-
-AppointmentSummaryItem:
-```json
-{
-  "clientName": "string",
-  "doctorName": "string",
-  "appointmentDate": "ISO date",
-  "appointmentTime": "hh:mm a, ej. 02:30 PM"
-}
-```
-
-**Gap importante:** sin `id` en este objeto — no se puede linkear tarjeta Kanban a la cita. Opciones: usar `GET /api/appointments` (listado) en paralelo, o pedir a backend que agregue `id` al summary.
+Respuesta: `{ PENDING: [...], CONFIRMED: [...], CANCELLED: [...] }` (siempre las 3 keys).
 
 ## Calendario
 
-`GET /api/appointments/calendar?month={1-12}&year&doctorId&patientId`
+`GET /api/appointments/calendar?month=1-12&year&doctorId&patientId` → `{ "MM-dd-yyyy": [...] }`.
 
-Response: `Map<String, List<AppointmentSummaryItem>>` — key formato `"MM-dd-yyyy"`.
+## AppointmentSummaryItem (ambos endpoints)
 
-Mismo `AppointmentSummaryItem`, mismo gap de `id` faltante.
+```json
+{ "id": 1, "clientName": "John Smith", "doctorName": "Dr. Ana García", "appointmentDate": "2026-10-06",
+  "appointmentTime": "08:00 AM", "startTime": "2026-10-06T08:00:00", "endTime": "2026-10-06T08:30:00",
+  "status": "CONFIRMED", "doctorId": 2, "patientId": 1 }
+```
+
+`id`, `status`, `startTime/endTime`, `doctorId` y `patientId` se agregaron el 2026-10-05 para poder abrir el detalle y mover tarjetas: en el tablero, arrastrar PENDING → CONFIRMED confirma y cualquier → CANCELLED cancela.

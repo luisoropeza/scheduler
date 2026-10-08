@@ -1,14 +1,12 @@
-<div
-  class="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
->
+<div class="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
   <div class="mb-4 flex items-center gap-3">
     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg {{ accentClasses().badge }}">
       <app-icon name="clinic" class="h-5 w-5 {{ accentClasses().icon }}" />
     </div>
     <div class="min-w-0">
       <h3 class="truncate text-base font-semibold text-gray-900">{{ clinic().name }}</h3>
-      @if (clinic().department) {
-        <p class="truncate text-sm text-gray-500">{{ clinic().department }}</p>
+      @if (highlighted()) {
+        <p class="text-xs font-semibold text-primary">Usada recientemente</p>
       }
     </div>
   </div>
@@ -16,18 +14,10 @@
   <div class="border-t border-gray-100"></div>
 
   <div class="my-4 flex-1 space-y-2 text-sm">
-    @if (clinic().activePatients !== undefined) {
-      <div class="flex items-center justify-between">
-        <span class="text-gray-500">Pacientes activos:</span>
-        <span class="font-semibold text-gray-900">{{ clinic().activePatients }}</span>
-      </div>
-    }
-    @if (clinic().pendingReviews !== undefined) {
-      <div class="flex items-center justify-between">
-        <span class="text-gray-500">Revisiones pendientes:</span>
-        <span class="font-semibold text-tertiary">{{ clinic().pendingReviews }}</span>
-      </div>
-    }
+    <div class="flex items-center justify-between">
+      <span class="text-gray-500">Teléfono:</span>
+      <span class="font-semibold text-gray-900">{{ clinic().phoneNumber }}</span>
+    </div>
   </div>
 
   <app-button-component

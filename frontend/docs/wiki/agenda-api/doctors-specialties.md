@@ -8,7 +8,7 @@ Parte de [[agenda-api/index]]. Auth: ver [[agenda-api/auth]].
 
 `GET /api/personal/doctors?specialtyId={id}&isActive={bool}&page&size&sort`
 
-Roles permitidos: PATIENT, RECEPTIONIST únicamente. NO DOCTOR, NO ADMINISTRATOR (admin usa `GET /api/personal` en su lugar, fuera de scope agenda).
+Roles permitidos: PATIENT, ASSISTANT únicamente. NO DOCTOR, NO ADMINISTRATOR (admin usa `GET /api/personal` en su lugar, fuera de scope agenda).
 
 Response: `Page<PersonalResponse>`
 

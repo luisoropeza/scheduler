@@ -1,0 +1,22 @@
+# Local development database. Usage: `docker compose up -d db`
+# Matches backend/.env.example: DB_URL=jdbc:postgresql://127.0.0.1:5432/scheduler, postgres/postgres
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: scheduler-db
+    environment:
+      POSTGRES_DB: scheduler
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - scheduler-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d scheduler"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  scheduler-db-data:
