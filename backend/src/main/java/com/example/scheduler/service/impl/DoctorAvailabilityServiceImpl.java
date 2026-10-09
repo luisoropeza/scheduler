@@ -6,6 +6,7 @@ import com.example.scheduler.dto.DoctorAvailability.DoctorAvailabilityResponse;
 import com.example.scheduler.entity.DoctorAvailability;
 import com.example.scheduler.enums.AppointmentStatus;
 import com.example.scheduler.exception.BadRequestException;
+import com.example.scheduler.exception.ForbiddenException;
 import com.example.scheduler.exception.ResourceNotFoundException;
 import com.example.scheduler.mapper.DoctorAvailabilityMapper;
 import com.example.scheduler.repository.AppointmentRepository;
@@ -92,6 +93,17 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
                 .sorted()
                 .toList();
         return new DoctorAvailabilitySlotsResponse(date, doctorId, availableSlots);
+    }
+
+    @Override
+    @Transactional
+    public void deactivateDoctorAvailabilityById(Long availabilityId, Long doctorId) {
+        var availability = availabilityRepository.findById(availabilityId)
+                .filter(DoctorAvailability::getActive)
+                .orElseThrow(() -> new ResourceNotFoundException("Availability not found with id: " + availabilityId));
+        if (!availability.getDoctor().getId().equals(doctorId))
+            throw new ForbiddenException("Not authorize to do this");
+        availability.setActive(false);
     }
 
     private List<LocalTime> createGeneratedSlots(List<DoctorAvailability> availabilities) {

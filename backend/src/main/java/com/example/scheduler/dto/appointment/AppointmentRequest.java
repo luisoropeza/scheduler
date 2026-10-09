@@ -9,6 +9,8 @@ public record AppointmentRequest(
         Long doctorId,
         @NotNull
         Long patientId,
+        @NotNull
         LocalDateTime startTime,
+        @NotNull
         LocalDateTime endTime
 ) {}

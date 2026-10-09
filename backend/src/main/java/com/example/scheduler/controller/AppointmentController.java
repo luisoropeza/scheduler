@@ -34,9 +34,9 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @PostMapping
-    @Operation(summary = "POST /api/appointments — book an appointment for a patient on a given schedule slot")
-    public ResponseEntity<AppointmentResponse> bookAppointment(@Valid @RequestBody AppointmentRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(appointmentService.bookAppointment(request));
+    @Operation(summary = "POST /api/appointments — book an appointment; every appointment starts PENDING; a PATIENT always books for itself")
+    public ResponseEntity<AppointmentResponse> bookAppointment(@Valid @RequestBody AppointmentRequest request, Authentication auth) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(appointmentService.bookAppointment(request, Long.parseLong(auth.getName()), SecurityUtils.extractRole(auth)));
     }
 
     @GetMapping("/{appointmentId}")
@@ -51,7 +51,7 @@ public class AppointmentController {
             @RequestParam(required = false) Long doctorId,
             @RequestParam(required = false) Long patientId,
             @RequestParam(required = false) AppointmentStatus status,
-            @PageableDefault(sort = "schedule.startTime", direction = Sort.Direction.ASC) Pageable pageable,
+            @PageableDefault(sort = "startTime", direction = Sort.Direction.ASC) Pageable pageable,
             Authentication auth
     ) {
         var role = SecurityUtils.extractRole(auth);

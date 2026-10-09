@@ -6,6 +6,7 @@ import com.example.scheduler.dto.appointment.AppointmentSummaryItem;
 import com.example.scheduler.entity.Appointment;
 import com.example.scheduler.enums.AppointmentStatus;
 import com.example.scheduler.enums.ERole;
+import com.example.scheduler.exception.BadRequestException;
 import com.example.scheduler.exception.BusinessException;
 import com.example.scheduler.exception.ForbiddenException;
 import com.example.scheduler.exception.ResourceNotFoundException;
@@ -33,7 +34,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AppointmentServiceImpl implements AppointmentService {
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("hh:mm a");
     private static final DateTimeFormatter CALENDAR_KEY_FORMATTER = DateTimeFormatter.ofPattern("MM-dd-yyyy");
 
     private final AppointmentRepository appointmentRepository;
@@ -45,7 +45,12 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
-    public AppointmentResponse bookAppointment(AppointmentRequest request) {
+    public AppointmentResponse bookAppointment(AppointmentRequest request, Long userId, String role) {
+        // A patient can only book for itself. Every new appointment starts PENDING until staff confirms it.
+        var isPatient = ERole.PATIENT.name().equals(role);
+        var patientId = isPatient ? userId : request.patientId();
+        if (!request.endTime().isAfter(request.startTime()))
+            throw new BadRequestException("The end time must be after the start time");
         var appointmentDate = request.startTime().toLocalDate();
         var startTime = request.startTime().toLocalTime();
         var endTime = request.endTime().toLocalTime();
@@ -57,13 +62,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (isSlotTaken(request.doctorId(), request.startTime(), request.endTime()))
             throw new BusinessException("That slot is already taken");
         var doctor = personalRepository.getReferenceById(request.doctorId());
-        var patient = patientRepository.getReferenceById(request.patientId());
+        var patient = patientRepository.getReferenceById(patientId);
         var appointment = Appointment.builder()
                 .doctor(doctor)
                 .patient(patient)
                 .startTime(request.startTime())
                 .endTime(request.endTime())
-                .status(AppointmentStatus.CONFIRMED)
+                .status(AppointmentStatus.PENDING)
                 .build();
         return appointmentMapper.toResponse(appointmentRepository.save(appointment));
     }
@@ -134,10 +139,16 @@ public class AppointmentServiceImpl implements AppointmentService {
     private AppointmentSummaryItem toSummaryItem(Appointment appointment) {
         var startTime = appointment.getStartTime();
         return new AppointmentSummaryItem(
+                appointment.getId(),
                 appointment.getPatient().getAccount().getName(),
                 appointment.getDoctor().getAccount().getName(),
                 startTime.toLocalDate(),
-                startTime.format(TIME_FORMATTER));
+                startTime.toLocalTime(),
+                startTime,
+                appointment.getEndTime(),
+                appointment.getStatus(),
+                appointment.getDoctor().getId(),
+                appointment.getPatient().getId());
     }
 
     private Appointment getAppointmentOrThrowById(Long appointmentId) {

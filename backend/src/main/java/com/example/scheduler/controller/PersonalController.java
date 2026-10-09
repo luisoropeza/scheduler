@@ -77,7 +77,9 @@ public class PersonalController {
     @PreAuthorize("hasAnyRole('DOCTOR', 'ASSISTANT')")
     @Operation(summary = "PUT /api/personal — update self personal information")
     public ResponseEntity<PersonalResponse> updatePersonalProfile(@Valid @RequestBody PersonalRequest request, Authentication auth) {
-        return ResponseEntity.ok(personalService.updatePersonalById(Long.parseLong(auth.getName()), request));
+        // Self-update can't change the specialty; only an administrator can.
+        var selfRequest = new PersonalRequest(request.name(), request.email(), null);
+        return ResponseEntity.ok(personalService.updatePersonalById(Long.parseLong(auth.getName()), selfRequest));
     }
 
     @DeleteMapping("/{personalId}")

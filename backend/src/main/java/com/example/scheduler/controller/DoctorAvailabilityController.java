@@ -6,6 +6,7 @@ import com.example.scheduler.dto.DoctorAvailability.DoctorAvailabilitySlotsRespo
 import com.example.scheduler.enums.ERole;
 import com.example.scheduler.security.SecurityUtils;
 import com.example.scheduler.service.DoctorAvailabilityService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,14 @@ public class DoctorAvailabilityController {
     @PreAuthorize("hasAnyRole('DOCTOR')")
     public ResponseEntity<DoctorAvailabilityResponse> addDoctorAvailability(@RequestBody DoctorAvailabilityRequest request, Authentication auth){
         return ResponseEntity.ok(doctorAvailabilityService.addDoctorAvailability(Long.parseLong(auth.getName()), request));
+    }
+
+    @DeleteMapping("/{availabilityId}")
+    @PreAuthorize("hasRole('DOCTOR')")
+    @Operation(summary = "DELETE /api/doctorAvailability/{id} — remove a weekly availability block of the current doctor")
+    public ResponseEntity<Void> deactivateDoctorAvailabilityById(@PathVariable Long availabilityId, Authentication auth) {
+        doctorAvailabilityService.deactivateDoctorAvailabilityById(availabilityId, Long.parseLong(auth.getName()));
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{doctorId}")

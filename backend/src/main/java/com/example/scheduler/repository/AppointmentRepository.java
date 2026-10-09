@@ -57,6 +57,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     );
 
     @NullMarked
-    @EntityGraph(attributePaths = {"schedule.doctor.specialty", "schedule.doctor.account", "patient.account"})
+    @EntityGraph(attributePaths = {"doctor.specialty", "doctor.account", "patient.account"})
     Optional<Appointment> findById(Long id);
 }

@@ -14,6 +14,5 @@ public interface AppointmentMapper {
     @Mapping(target = "patientId", source = "patient.id")
     @Mapping(target = "patientName", source = "patient.account.name")
     @Mapping(target = "patientEmail", source = "patient.account.email")
-    @Mapping(target = "status", expression = "java(appointment.getStatus().getDisplayName())")
     AppointmentResponse toResponse(Appointment appointment);
 }

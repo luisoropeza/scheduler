@@ -92,6 +92,12 @@ public class PersonalServiceImpl implements PersonalService {
             throw new BadRequestException("Account with email " + request.email() + " is already exists");
         }
         personalMapper.toEntityUpdated(request, personal);
+        // null keeps the current specialty (assistants and self-updates send none)
+        if (request.specialtyId() != null) {
+            if (personal.getRole().getName() != ERole.DOCTOR)
+                throw new BadRequestException("Only doctors can have a specialty");
+            personal.setSpecialty(getSpecialtyOrThrowById(request.specialtyId()));
+        }
         return personalMapper.toResponse(personalRepository.save(personal));
     }
 

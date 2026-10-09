@@ -1,13 +1,13 @@
 package com.example.scheduler.dto.appointment;
 
-import lombok.Data;
+import com.example.scheduler.enums.AppointmentStatus;
 
 import java.time.LocalDateTime;
 
 public record AppointmentResponse(
         Long id,
 
-        // Schedule=
+        // Schedule
         LocalDateTime startTime,
         LocalDateTime endTime,
 
@@ -22,6 +22,6 @@ public record AppointmentResponse(
         String patientName,
         String patientEmail,
 
-        String status,
+        AppointmentStatus status,
         LocalDateTime createdAt
 ) {}
