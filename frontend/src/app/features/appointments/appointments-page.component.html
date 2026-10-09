@@ -91,11 +91,11 @@
                 <p class="font-semibold text-gray-800">{{ row.doctorName }}</p>
                 <p class="text-xs text-gray-500">{{ row.doctorSpecialty ?? 'Sin especialidad' }}</p>
               </td>
-              <td><app-status-badge [status]="row.statusKey" /></td>
+              <td><app-status-badge [status]="row.status" /></td>
               @if (canManage) {
                 <td>
                   <div class="flex justify-end gap-1.5">
-                    @if (actions.canConfirm(row.statusKey)) {
+                    @if (actions.canConfirm(row.status)) {
                       <button
                         type="button"
                         class="btn btn-sm bg-primary/10 text-primary hover:bg-primary/20"
@@ -104,7 +104,7 @@
                         Confirmar
                       </button>
                     }
-                    @if (actions.canCancel(row.statusKey)) {
+                    @if (actions.canCancel(row.status)) {
                       <button
                         type="button"
                         class="btn btn-sm btn-danger"

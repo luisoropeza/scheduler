@@ -5,7 +5,6 @@ import { Observable } from 'rxjs';
 import { AppointmentsApi } from '../../core/api/appointments.api';
 import { AppointmentResponse } from '../../core/models/api.models';
 import { datePart, formatLongDate, formatTime } from '../../core/utils/calendar.util';
-import { statusFromDisplay } from '../../core/utils/labels.util';
 import { DialogFrameComponent } from '../../shared/ui/dialog-frame/dialog-frame.component';
 import { StatusBadgeComponent } from '../../shared/ui/status-badge/status-badge.component';
 import { UiIconComponent } from '../../shared/ui/ui-icon/ui-icon.component';
@@ -31,10 +30,6 @@ export class AppointmentDetailDialogComponent {
 
   protected readonly resource = rxResource({ loader: () => this.api.get(this.data.id) });
   protected readonly appointment = this.resource.value;
-  protected readonly status = computed(() => {
-    const appointment = this.appointment();
-    return appointment ? statusFromDisplay(appointment.status) : null;
-  });
   protected readonly dateLabel = computed(() => {
     const appointment = this.appointment();
     return appointment ? formatLongDate(datePart(appointment.startTime)) : '';
@@ -45,12 +40,14 @@ export class AppointmentDetailDialogComponent {
       ? `${formatTime(appointment.startTime)} – ${formatTime(appointment.endTime)}`
       : '';
   });
-  protected readonly canConfirm = computed(
-    () => !!this.status() && this.actions.canConfirm(this.status()!),
-  );
-  protected readonly canCancel = computed(
-    () => !!this.status() && this.actions.canCancel(this.status()!),
-  );
+  protected readonly canConfirm = computed(() => {
+    const appointment = this.appointment();
+    return !!appointment && this.actions.canConfirm(appointment.status);
+  });
+  protected readonly canCancel = computed(() => {
+    const appointment = this.appointment();
+    return !!appointment && this.actions.canCancel(appointment.status);
+  });
 
   protected confirm(appointment: AppointmentResponse): void {
     this.apply(this.actions.confirm(appointment.id, appointment.patientName));

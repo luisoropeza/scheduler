@@ -11,8 +11,8 @@ import { UiIconComponent } from '../ui-icon/ui-icon.component';
   // Focus outline comes from the global :focus-visible rule in styles.css.
   host: {
     class: 'block rounded-2xl',
-    '[attr.role]': 'interactive() ? "button" : null',
-    '[attr.tabindex]': 'interactive() ? 0 : null',
+    role: 'button',
+    tabindex: '0',
     '(keydown.enter)': 'activate($event)',
     '(keydown.space)': 'activate($event)',
   },
@@ -24,16 +24,13 @@ export class BoardCardComponent {
   draggable = input(true);
 
   protected activate(event: Event): void {
-    if (!this.interactive()) return;
     event.preventDefault();
     (event.currentTarget as HTMLElement).click();
   }
 
-  /** Items without id (backend does not send one yet) can't be opened, so they are not presented as buttons. */
-  protected readonly interactive = computed(() => this.appointment().id !== null);
   protected readonly timeLabel = computed(() => {
     const { startTime, endTime } = this.appointment();
-    return endTime ? `${formatTime(startTime)} – ${formatTime(endTime)}` : formatTime(startTime);
+    return `${formatTime(startTime)} – ${formatTime(endTime)}`;
   });
   protected readonly dayLabel = computed(() => formatDayLabel(this.appointment().appointmentDate));
 }

@@ -5,7 +5,13 @@ import { AppointmentsApi } from '../../core/api/appointments.api';
 import { AuthService } from '../../core/auth/auth.service';
 import { AppointmentSummaryItem } from '../../core/models/api.models';
 import { ROLES } from '../../core/navigation/navigation';
-import { buildMonthMatrix, calendarKeyToIso, formatDayLabel, formatMonthLabel, toIso } from '../../core/utils/calendar.util';
+import {
+  buildMonthMatrix,
+  calendarKeyToIso,
+  formatDayLabel,
+  formatMonthLabel,
+  toIso,
+} from '../../core/utils/calendar.util';
 import { CalendarDayCellComponent } from '../../shared/ui/calendar-day-cell/calendar-day-cell.component';
 import { CalendarNavComponent } from '../../shared/ui/calendar-nav/calendar-nav.component';
 import { DayAgendaPanelComponent } from '../../shared/ui/day-agenda-panel/day-agenda-panel.component';
@@ -14,9 +20,14 @@ import { AppointmentActionsService } from '../appointments/appointment-actions.s
 
 @Component({
   selector: 'app-calendar',
-  imports: [CalendarDayCellComponent, PageHeaderComponent, CalendarNavComponent, DayAgendaPanelComponent],
+  imports: [
+    CalendarDayCellComponent,
+    PageHeaderComponent,
+    CalendarNavComponent,
+    DayAgendaPanelComponent,
+  ],
   templateUrl: './calendar.component.html',
-  host: { class: 'flex min-h-0 flex-1 flex-col' }
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
 })
 export class CalendarComponent {
   private readonly api = inject(AppointmentsApi);
@@ -33,12 +44,14 @@ export class CalendarComponent {
   protected readonly selectedDate = signal(this.today);
 
   protected readonly monthLabel = computed(() => formatMonthLabel(this.viewDate()));
-  protected readonly weeks = computed(() => buildMonthMatrix(this.viewDate().getFullYear(), this.viewDate().getMonth()));
+  protected readonly weeks = computed(() =>
+    buildMonthMatrix(this.viewDate().getFullYear(), this.viewDate().getMonth()),
+  );
 
   /** The backend returns one month; days of the neighbour months shown in the grid simply have no data. */
   protected readonly resource = rxResource({
     request: () => ({ month: this.viewDate().getMonth() + 1, year: this.viewDate().getFullYear() }),
-    loader: ({ request }) => this.api.calendar(request)
+    loader: ({ request }) => this.api.calendar(request),
   });
 
   private readonly byDay = computed(() => {
@@ -46,15 +59,19 @@ export class CalendarComponent {
     for (const [key, items] of Object.entries(this.resource.value() ?? {})) {
       result.set(
         calendarKeyToIso(key),
-        [...items].sort((a, b) => a.startTime.localeCompare(b.startTime))
+        [...items].sort((a, b) => a.startTime.localeCompare(b.startTime)),
       );
     }
     return result;
   });
 
   protected readonly selectedDayLabel = computed(() => formatDayLabel(this.selectedDate()));
-  protected readonly selectedDayAppointments = computed(() => this.byDay().get(this.selectedDate()) ?? []);
-  protected readonly canCreateOnSelected = computed(() => this.canBook && this.selectedDate() >= this.today);
+  protected readonly selectedDayAppointments = computed(
+    () => this.byDay().get(this.selectedDate()) ?? [],
+  );
+  protected readonly canCreateOnSelected = computed(
+    () => this.canBook && this.selectedDate() >= this.today,
+  );
 
   protected appointmentsFor(iso: string): AppointmentSummaryItem[] {
     return this.byDay().get(iso) ?? [];
@@ -77,7 +94,8 @@ export class CalendarComponent {
     this.selectedDate.set(iso);
     const [year, month] = iso.split('-').map(Number);
     const view = this.viewDate();
-    if (view.getFullYear() !== year || view.getMonth() !== month - 1) this.viewDate.set(new Date(year, month - 1, 1));
+    if (view.getFullYear() !== year || view.getMonth() !== month - 1)
+      this.viewDate.set(new Date(year, month - 1, 1));
   }
 
   protected openNewAppointment(): void {
@@ -85,7 +103,8 @@ export class CalendarComponent {
   }
 
   protected open(appointment: AppointmentSummaryItem): void {
-    if (appointment.id === null) return;
-    this.actions.openDetail(appointment.id).subscribe((changed) => changed && this.resource.reload());
+    this.actions
+      .openDetail(appointment.id)
+      .subscribe((changed) => changed && this.resource.reload());
   }
 }

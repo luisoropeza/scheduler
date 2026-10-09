@@ -182,10 +182,9 @@
           >
           Fecha y horario
         </h2>
-        <input
-          type="date"
-          class="field-input !w-auto !py-1.5"
-          aria-label="Fecha"
+        <app-date-range-picker
+          mode="single"
+          ariaLabel="Fecha"
           [min]="today"
           [ngModel]="selectedDate()"
           (ngModelChange)="selectDate($event)"

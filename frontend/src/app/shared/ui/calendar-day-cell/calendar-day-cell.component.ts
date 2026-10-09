@@ -22,7 +22,6 @@ export class CalendarDayCellComponent {
   /** One dot per status present that day. */
   protected readonly dotTones = computed(() => {
     const present = new Set(this.appointments().map((appointment) => appointment.status));
-    // Items without status (older backend) are not dotted.
     return STATUS_ORDER.filter((status) => present.has(status)).map(
       (status) => STATUS_STYLE[status].dot,
     );

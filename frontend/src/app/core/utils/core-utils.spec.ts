@@ -10,7 +10,7 @@ import {
   toIso,
   toLocalDateTime,
 } from './calendar.util';
-import { dayOfWeekOf, initials, statusFromDisplay } from './labels.util';
+import { dayOfWeekOf, initials } from './labels.util';
 
 describe('calendar.util', () => {
   it('formats backend LocalTime and LocalDateTime as HH:mm', () => {
@@ -43,12 +43,6 @@ describe('calendar.util', () => {
 });
 
 describe('labels.util', () => {
-  it('maps display statuses to enum values', () => {
-    expect(statusFromDisplay('Pendiente')).toBe('PENDING');
-    expect(statusFromDisplay('Confirmado')).toBe('CONFIRMED');
-    expect(statusFromDisplay('CANCELLED')).toBe('CANCELLED');
-  });
-
   it('maps JS days to backend DayOfWeek', () => {
     expect(dayOfWeekOf(new Date(2026, 9, 5))).toBe('MONDAY');
     expect(dayOfWeekOf(new Date(2026, 9, 11))).toBe('SUNDAY');

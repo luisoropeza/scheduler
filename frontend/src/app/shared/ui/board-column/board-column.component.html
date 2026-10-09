@@ -16,13 +16,12 @@
   (cdkDropListDropped)="dropped.emit($event)"
   class="flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto px-4 pb-4 pt-2"
 >
-  @for (appointment of column().appointments; track appointment.id ?? $index) {
+  @for (appointment of column().appointments; track appointment.id) {
     <app-board-card
       cdkDrag
       [cdkDragData]="appointment"
       [appointment]="appointment"
       [showDate]="showDates()"
-      [cdkDragDisabled]="appointment.id === null"
       [draggable]="!readonly()"
       (click)="open.emit(appointment)"
     />

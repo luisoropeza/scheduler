@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Dialog } from '@angular/cdk/dialog';
 import { FormsModule } from '@angular/forms';
+import { DateRangePickerComponent } from '../../shared/ui/date-range-picker/date-range-picker.component';
 import { filter, switchMap } from 'rxjs';
 import { AgendaApi } from '../../core/api/agenda.api';
 import { apiErrorMessage } from '../../core/http/api-error';
@@ -18,10 +19,16 @@ import { AvailabilityResourceService } from './services/availability-resource.se
 /** DOCTOR: weekly availability blocks, schedule exceptions and a preview of the resulting free slots. */
 @Component({
   selector: 'app-availability-page',
-  imports: [FormsModule, PageHeaderComponent, EmptyStateComponent, UiIconComponent],
+  imports: [
+    FormsModule,
+    DateRangePickerComponent,
+    PageHeaderComponent,
+    EmptyStateComponent,
+    UiIconComponent,
+  ],
   providers: [AvailabilityResourceService],
   templateUrl: './availability-page.component.html',
-  host: { class: 'flex min-h-0 flex-1 flex-col' }
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
 })
 export class AvailabilityPageComponent {
   private readonly api = inject(AgendaApi);
@@ -49,18 +56,18 @@ export class AvailabilityPageComponent {
         title: 'Quitar horario',
         message: `¿Quitar el bloque del ${dayLabel.toLowerCase()} de ${formatTime(block.startTime)} a ${formatTime(block.endTime)}? Las citas ya agendadas se mantienen.`,
         confirmLabel: 'Quitar',
-        danger: true
+        danger: true,
       })
       .pipe(
         filter(Boolean),
-        switchMap(() => this.api.removeAvailability(block.id))
+        switchMap(() => this.api.removeAvailability(block.id)),
       )
       .subscribe({
         next: () => {
           this.notifications.success('Horario quitado');
           this.resource.reloadAvailability();
         },
-        error: (error) => this.notifications.error(apiErrorMessage(error))
+        error: (error) => this.notifications.error(apiErrorMessage(error)),
       });
   }
 
@@ -79,18 +86,18 @@ export class AvailabilityPageComponent {
       .ask({
         title: 'Quitar bloqueo',
         message: `¿Habilitar nuevamente el ${formatLongDate(exception.date).toLowerCase()}?`,
-        confirmLabel: 'Quitar'
+        confirmLabel: 'Quitar',
       })
       .pipe(
         filter(Boolean),
-        switchMap(() => this.api.removeException(exception.id))
+        switchMap(() => this.api.removeException(exception.id)),
       )
       .subscribe({
         next: () => {
           this.notifications.success('Bloqueo quitado');
           this.resource.reloadAvailability();
         },
-        error: (error) => this.notifications.error(apiErrorMessage(error))
+        error: (error) => this.notifications.error(apiErrorMessage(error)),
       });
   }
 }

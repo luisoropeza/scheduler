@@ -3,12 +3,19 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { CdkDragDrop, CdkDropListGroup, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Observable } from 'rxjs';
 import { AppointmentsApi } from '../../core/api/appointments.api';
-import { AppointmentResponse, AppointmentStatus, AppointmentSummaryItem } from '../../core/models/api.models';
+import {
+  AppointmentResponse,
+  AppointmentStatus,
+  AppointmentSummaryItem,
+} from '../../core/models/api.models';
 import { BoardColumn } from '../../core/models/board.model';
 import { addDays, toIso } from '../../core/utils/calendar.util';
 import { NotificationService } from '../../shared/services/notification.service';
 import { BoardColumnComponent } from '../../shared/ui/board-column/board-column.component';
-import { DateRange, DateRangePickerComponent } from '../../shared/ui/date-range-picker/date-range-picker.component';
+import {
+  DateRange,
+  DateRangePickerComponent,
+} from '../../shared/ui/date-range-picker/date-range-picker.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header/page-header.component';
 import { UiIconComponent } from '../../shared/ui/ui-icon/ui-icon.component';
 import { AppointmentActionsService } from '../appointments/appointment-actions.service';
@@ -17,7 +24,7 @@ import { AppointmentActionsService } from '../appointments/appointment-actions.s
 const COLUMN_DEFS: { id: AppointmentStatus; title: string; accentClass: string }[] = [
   { id: 'PENDING', title: 'Pendientes', accentClass: 'bg-tertiary' },
   { id: 'CONFIRMED', title: 'Confirmadas', accentClass: 'bg-primary' },
-  { id: 'CANCELLED', title: 'Canceladas', accentClass: 'bg-gray-400' }
+  { id: 'CANCELLED', title: 'Canceladas', accentClass: 'bg-gray-400' },
 ];
 
 /**
@@ -26,9 +33,15 @@ const COLUMN_DEFS: { id: AppointmentStatus; title: string; accentClass: string }
  */
 @Component({
   selector: 'app-board',
-  imports: [CdkDropListGroup, BoardColumnComponent, PageHeaderComponent, DateRangePickerComponent, UiIconComponent],
+  imports: [
+    CdkDropListGroup,
+    BoardColumnComponent,
+    PageHeaderComponent,
+    DateRangePickerComponent,
+    UiIconComponent,
+  ],
   templateUrl: './board.component.html',
-  host: { class: 'flex min-h-0 flex-1 flex-col' }
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
 })
 export class BoardComponent {
   private readonly api = inject(AppointmentsApi);
@@ -42,7 +55,7 @@ export class BoardComponent {
 
   protected readonly resource = rxResource({
     request: () => ({ from: this.dateFrom(), to: this.dateTo() }),
-    loader: ({ request }) => this.api.board(request)
+    loader: ({ request }) => this.api.board(request),
   });
 
   protected readonly columns = computed<BoardColumn[]>(() => {
@@ -56,8 +69,9 @@ export class BoardComponent {
   }
 
   protected open(appointment: AppointmentSummaryItem): void {
-    if (appointment.id === null) return;
-    this.actions.openDetail(appointment.id).subscribe((changed) => changed && this.resource.reload());
+    this.actions
+      .openDetail(appointment.id)
+      .subscribe((changed) => changed && this.resource.reload());
   }
 
   protected drop(event: CdkDragDrop<AppointmentSummaryItem[]>): void {
@@ -68,17 +82,19 @@ export class BoardComponent {
 
     const appointment = event.item.data as AppointmentSummaryItem;
     const target = event.container.id as AppointmentStatus;
-    if (appointment.id === null) {
-      this.notifications.error('Esta cita no se puede mover desde el tablero');
-      return;
-    }
     let action: Observable<AppointmentResponse> | null = null;
 
-    if (target === 'CONFIRMED' && appointment.status === 'PENDING') action = this.actions.confirm(appointment.id, appointment.clientName);
-    if (target === 'CANCELLED') action = this.actions.cancel(appointment.id, appointment.clientName);
+    if (target === 'CONFIRMED' && appointment.status === 'PENDING')
+      action = this.actions.confirm(appointment.id, appointment.clientName);
+    if (target === 'CANCELLED')
+      action = this.actions.cancel(appointment.id, appointment.clientName);
 
     if (!action) {
-      this.notifications.error(target === 'PENDING' ? 'Una cita no puede volver a pendiente' : 'Una cita cancelada no puede reactivarse');
+      this.notifications.error(
+        target === 'PENDING'
+          ? 'Una cita no puede volver a pendiente'
+          : 'Una cita cancelada no puede reactivarse',
+      );
       return;
     }
     action.subscribe(() => this.resource.reload());

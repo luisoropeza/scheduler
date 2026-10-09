@@ -46,7 +46,7 @@
         </app-empty-state>
       } @else {
         <div class="-m-2 flex flex-1 flex-col gap-3 p-2">
-          @for (appointment of todayAppointments(); track appointment.id ?? $index) {
+          @for (appointment of todayAppointments(); track appointment.id) {
             <app-appointment-list-item [appointment]="appointment" (click)="open(appointment)" />
           } @empty {
             <app-empty-state

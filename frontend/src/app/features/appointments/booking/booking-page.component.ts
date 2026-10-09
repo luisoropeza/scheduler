@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { DateRangePickerComponent } from '../../../shared/ui/date-range-picker/date-range-picker.component';
 import { Router, RouterLink } from '@angular/router';
 import { finalize, map, of } from 'rxjs';
 import { AgendaApi } from '../../../core/api/agenda.api';
@@ -43,7 +44,14 @@ interface DoctorOption {
  */
 @Component({
   selector: 'app-booking-page',
-  imports: [FormsModule, RouterLink, PageHeaderComponent, EmptyStateComponent, UiIconComponent],
+  imports: [
+    FormsModule,
+    DateRangePickerComponent,
+    RouterLink,
+    PageHeaderComponent,
+    EmptyStateComponent,
+    UiIconComponent,
+  ],
   templateUrl: './booking-page.component.html',
   host: { class: 'flex min-h-0 flex-1 flex-col' },
 })

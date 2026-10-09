@@ -1,11 +1,9 @@
-<div class="glass-card rounded-2xl p-4" [class.cursor-pointer]="interactive()">
+<div class="glass-card cursor-pointer rounded-2xl p-4">
   <div class="mb-2 flex items-start justify-between gap-2.5">
     <p class="text-[16px] font-bold leading-tight text-gray-900">
       {{ doctorAsTitle() ? appointment().doctorName : appointment().clientName }}
     </p>
-    @if (appointment().status; as status) {
-      <app-status-badge [status]="status" />
-    }
+    <app-status-badge [status]="appointment().status" />
   </div>
 
   <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] font-medium text-gray-500">

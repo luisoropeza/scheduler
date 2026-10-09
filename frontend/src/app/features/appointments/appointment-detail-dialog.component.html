@@ -19,9 +19,7 @@
           <p class="text-[15px] font-bold text-gray-900">{{ dateLabel() }}</p>
           <p class="text-sm font-medium text-gray-500">{{ timeLabel() }}</p>
         </div>
-        @if (status(); as status) {
-          <app-status-badge [status]="status" />
-        }
+        <app-status-badge [status]="appt.status" />
       </div>
 
       <div class="flex items-center gap-3 rounded-2xl bg-white/60 px-4 py-3">

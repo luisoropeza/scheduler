@@ -1,8 +1,6 @@
 <div
   class="glass-card rounded-2xl p-[18px]"
-  [class]="
-    !interactive() ? '' : draggable() ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
-  "
+  [class]="draggable() ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'"
 >
   <p class="mb-2 text-[16.5px] font-bold leading-tight text-gray-900">
     {{ appointment().clientName }}

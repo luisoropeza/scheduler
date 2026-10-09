@@ -37,7 +37,9 @@
             <p class="mb-2.5 text-sm font-extrabold text-gray-800">{{ day.label }}</p>
             <div class="flex flex-1 flex-col gap-2">
               @for (block of day.blocks; track block.id) {
-                <div class="group flex items-start gap-1.5 rounded-xl bg-primary/10 py-2 pl-3 pr-1.5 text-primary">
+                <div
+                  class="group flex items-start gap-1.5 rounded-xl bg-primary/10 py-2 pl-3 pr-1.5 text-primary"
+                >
                   <div class="min-w-0 flex-1">
                     <p class="text-sm font-bold">
                       {{ formatTime(block.startTime) }} – {{ formatTime(block.endTime) }}
@@ -144,10 +146,9 @@
           <h2 class="mb-1 text-xl font-extrabold text-gray-900">Vista previa</h2>
           <p class="text-sm font-medium text-gray-500">Horarios libres que verán los pacientes</p>
         </div>
-        <input
-          type="date"
-          class="field-input !w-auto !py-1.5"
-          aria-label="Fecha de vista previa"
+        <app-date-range-picker
+          mode="single"
+          ariaLabel="Fecha de vista previa"
           [min]="resource.today"
           [ngModel]="resource.previewDate()"
           (ngModelChange)="resource.setPreviewDate($event)"

@@ -11,6 +11,7 @@ import { finalize } from 'rxjs';
 import { AgendaApi } from '../../core/api/agenda.api';
 import { apiErrorMessage } from '../../core/http/api-error';
 import { toIso } from '../../core/utils/calendar.util';
+import { DateRangePickerComponent } from '../../shared/ui/date-range-picker/date-range-picker.component';
 import { DialogFrameComponent } from '../../shared/ui/dialog-frame/dialog-frame.component';
 
 function partialRangeValid(group: AbstractControl): ValidationErrors | null {
@@ -27,7 +28,7 @@ function partialRangeValid(group: AbstractControl): ValidationErrors | null {
 /** Blocks a whole day (vacation, congress…) or a time range of a specific date. */
 @Component({
   selector: 'app-exception-form-dialog',
-  imports: [DialogFrameComponent, ReactiveFormsModule],
+  imports: [DialogFrameComponent, DateRangePickerComponent, ReactiveFormsModule],
   templateUrl: './exception-form-dialog.component.html',
 })
 export class ExceptionFormDialogComponent {
