@@ -201,7 +201,7 @@ export class BookingPageComponent {
           this.notifications.success(
             this.isPatient
               ? 'Solicitud enviada: la clínica confirmará tu cita'
-              : 'Cita agendada y confirmada',
+              : 'Cita agendada: queda pendiente de confirmación',
           );
           this.router.navigate([this.isPatient ? '/appointments' : '/calendar']);
         },
