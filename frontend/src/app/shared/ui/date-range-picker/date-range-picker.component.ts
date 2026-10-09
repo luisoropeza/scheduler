@@ -1,5 +1,5 @@
 import { CdkTrapFocus } from '@angular/cdk/a11y';
-import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
+import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { Component, computed, forwardRef, input, output, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
@@ -11,6 +11,7 @@ import {
   parseIso,
   toIso,
 } from '../../../core/utils/calendar.util';
+import { POPOVER_POSITIONS } from '../overlay-positions';
 
 export interface DateRange {
   from: string;
@@ -59,12 +60,7 @@ export class DateRangePickerComponent implements ControlValueAccessor {
   protected readonly weekdayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
   protected readonly today = toIso(new Date());
   protected readonly formatLongDate = formatLongDate;
-  protected readonly positions: ConnectedPosition[] = [
-    { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 8 },
-    { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 8 },
-    { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -8 },
-    { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -8 },
-  ];
+  protected readonly positions = POPOVER_POSITIONS;
 
   protected readonly isOpen = signal(false);
   protected readonly disabled = signal(false);

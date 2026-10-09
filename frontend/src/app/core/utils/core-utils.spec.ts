@@ -7,6 +7,7 @@ import {
   calendarKeyToIso,
   formatTime,
   startOfWeek,
+  timeSlots,
   toIso,
   toLocalDateTime,
 } from './calendar.util';
@@ -20,6 +21,13 @@ describe('calendar.util', () => {
 
   it('builds backend LocalDateTime without timezone shift', () => {
     expect(toLocalDateTime('2026-10-06', '08:00:00')).toBe('2026-10-06T08:00:00');
+  });
+
+  it('lists the day in step-minute slots', () => {
+    const slots = timeSlots(30);
+    expect(slots.length).toBe(48);
+    expect(slots[0]).toBe('00:00');
+    expect(slots[47]).toBe('23:30');
   });
 
   it('adds slot minutes across the hour', () => {

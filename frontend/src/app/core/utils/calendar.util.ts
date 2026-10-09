@@ -32,7 +32,10 @@ export function addDays(date: Date, days: number): Date {
 
 /** Monday of the week containing `date`. */
 export function startOfWeek(date: Date): Date {
-  return addDays(new Date(date.getFullYear(), date.getMonth(), date.getDate()), -((date.getDay() + 6) % 7));
+  return addDays(
+    new Date(date.getFullYear(), date.getMonth(), date.getDate()),
+    -((date.getDay() + 6) % 7),
+  );
 }
 
 /** Always returns 6 full weeks (Mon-Sun) so the grid height stays stable across months. */
@@ -45,7 +48,11 @@ export function buildMonthMatrix(year: number, month: number): CalendarDay[][] {
   for (let week = 0; week < 6; week++) {
     const days: CalendarDay[] = [];
     for (let day = 0; day < 7; day++) {
-      days.push({ date: new Date(cursor), iso: toIso(cursor), inCurrentMonth: cursor.getMonth() === month });
+      days.push({
+        date: new Date(cursor),
+        iso: toIso(cursor),
+        inCurrentMonth: cursor.getMonth() === month,
+      });
       cursor.setDate(cursor.getDate() + 1);
     }
     weeks.push(days);
@@ -61,12 +68,21 @@ export function formatMonthLabel(date: Date): string {
 
 /** "Mar, 6 oct" */
 export function formatDayLabel(iso: string): string {
-  return capitalize(parseIso(iso).toLocaleDateString(LOCALE, { weekday: 'short', month: 'short', day: 'numeric' }));
+  return capitalize(
+    parseIso(iso).toLocaleDateString(LOCALE, { weekday: 'short', month: 'short', day: 'numeric' }),
+  );
 }
 
 /** "Martes, 6 de octubre de 2026" */
 export function formatLongDate(iso: string): string {
-  return capitalize(parseIso(iso).toLocaleDateString(LOCALE, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
+  return capitalize(
+    parseIso(iso).toLocaleDateString(LOCALE, {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }),
+  );
 }
 
 /** Compact "6 oct" label, used by the date-range-picker trigger. */
@@ -101,4 +117,13 @@ export function addMinutesToTime(time: string, minutes: number): string {
 export function calendarKeyToIso(key: string): string {
   const [month, day, year] = key.split('-');
   return `${year}-${month}-${day}`;
+}
+
+/** Every `step` minutes of one day as "HH:mm": 30 → ["00:00", "00:30", …, "23:30"]. */
+export function timeSlots(step: number): string[] {
+  const slots: string[] = [];
+  for (let minutes = 0; minutes < 24 * 60; minutes += Math.max(step, 1)) {
+    slots.push(`${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`);
+  }
+  return slots;
 }

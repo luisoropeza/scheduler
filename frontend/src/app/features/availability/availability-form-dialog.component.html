@@ -31,11 +31,11 @@
     <div class="grid grid-cols-2 gap-4">
       <div>
         <label class="field-label" for="av-start">Desde</label>
-        <input id="av-start" type="time" class="field-input" formControlName="startTime" />
+        <app-time-picker id="av-start" formControlName="startTime" />
       </div>
       <div>
         <label class="field-label" for="av-end">Hasta</label>
-        <input id="av-end" type="time" class="field-input" formControlName="endTime" />
+        <app-time-picker id="av-end" formControlName="endTime" [min]="endMin()" />
       </div>
     </div>
     @if (form.hasError('endBeforeStart')) {
@@ -44,11 +44,11 @@
 
     <div>
       <label class="field-label" for="av-duration">Duración de cada cita</label>
-      <select id="av-duration" class="field-input" formControlName="slotDurationMinutes">
-        @for (minutes of durations; track minutes) {
-          <option [ngValue]="minutes">{{ minutes }} minutos</option>
-        }
-      </select>
+      <app-select
+        id="av-duration"
+        formControlName="slotDurationMinutes"
+        [options]="durationOptions"
+      />
     </div>
 
     @if (error(); as message) {
