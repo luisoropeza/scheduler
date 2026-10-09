@@ -11,7 +11,15 @@ import { StaffApi } from '../../../core/api/staff.api';
 import { AuthService } from '../../../core/auth/auth.service';
 import { apiErrorMessage } from '../../../core/http/api-error';
 import { Patient, Staff } from '../../../core/models/api.models';
-import { addDays, addMinutesToTime, formatLongDate, formatTime, parseIso, toIso, toLocalDateTime } from '../../../core/utils/calendar.util';
+import {
+  addDays,
+  addMinutesToTime,
+  formatLongDate,
+  formatTime,
+  parseIso,
+  toIso,
+  toLocalDateTime,
+} from '../../../core/utils/calendar.util';
 import { dayOfWeekOf, initials } from '../../../core/utils/labels.util';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { EmptyStateComponent } from '../../../shared/ui/empty-state/empty-state.component';
@@ -37,7 +45,7 @@ interface DoctorOption {
   selector: 'app-booking-page',
   imports: [FormsModule, RouterLink, PageHeaderComponent, EmptyStateComponent, UiIconComponent],
   templateUrl: './booking-page.component.html',
-  host: { class: 'flex min-h-0 flex-1 flex-col' }
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
 })
 export class BookingPageComponent {
   private readonly auth = inject(AuthService);
@@ -63,21 +71,29 @@ export class BookingPageComponent {
     loader: () =>
       this.isPatient
         ? of([] as Patient[])
-        : this.patientsApi.list({ size: 1000, sort: 'id' }).pipe(map((page) => page.content.filter((p) => p.active)))
+        : this.patientsApi
+            .list({ size: 1000, sort: 'id' })
+            .pipe(map((page) => page.content.filter((p) => p.active))),
   });
   protected readonly patientsLoading = this.patientsResource.isLoading;
   protected readonly filteredPatients = computed(() => {
     const term = this.patientSearch().trim().toLowerCase();
     const patients = this.patientsResource.value() ?? [];
-    return (term ? patients.filter((p) => `${p.name} ${p.email}`.toLowerCase().includes(term)) : patients).slice(0, 50);
+    return (
+      term ? patients.filter((p) => `${p.name} ${p.email}`.toLowerCase().includes(term)) : patients
+    ).slice(0, 50);
   });
 
   // ── Doctor ──
   protected readonly specialtyId = signal<number | null>(null);
   protected readonly selectedDoctor = signal<DoctorOption | null>(
-    this.isDoctor ? { id: this.auth.userId()!, name: this.auth.session()!.username, specialtyName: null } : null
+    this.isDoctor
+      ? { id: this.auth.userId()!, name: this.auth.session()!.username, specialtyName: null }
+      : null,
   );
-  protected readonly specialtiesResource = rxResource({ loader: () => (this.isDoctor ? of([]) : this.catalogsApi.specialties()) });
+  protected readonly specialtiesResource = rxResource({
+    loader: () => (this.isDoctor ? of([]) : this.catalogsApi.specialties()),
+  });
   protected readonly doctorsResource = rxResource({
     request: () => ({ specialtyId: this.specialtyId() }),
     loader: ({ request }) =>
@@ -85,7 +101,7 @@ export class BookingPageComponent {
         ? of([] as Staff[])
         : this.staffApi
             .doctors({ specialtyId: request.specialtyId ?? undefined, isActive: true, size: 100 })
-            .pipe(map((page) => page.content))
+            .pipe(map((page) => page.content)),
   });
 
   // ── Date & slot ──
@@ -96,7 +112,7 @@ export class BookingPageComponent {
       iso: toIso(date),
       weekday: date.toLocaleDateString('es-ES', { weekday: 'short' }).replace('.', ''),
       day: date.getDate(),
-      month: date.toLocaleDateString('es-ES', { month: 'short' }).replace('.', '')
+      month: date.toLocaleDateString('es-ES', { month: 'short' }).replace('.', ''),
     };
   });
   protected readonly selectedSlot = signal<string | null>(null);
@@ -107,11 +123,13 @@ export class BookingPageComponent {
       return doctor ? { doctorId: doctor.id, date: this.selectedDate() } : undefined;
     },
     loader: ({ request }) =>
-      this.agendaApi.availableSlots(request!.doctorId, request!.date).pipe(map((res) => res.availableSlots.map(formatTime)))
+      this.agendaApi
+        .availableSlots(request!.doctorId, request!.date)
+        .pipe(map((res) => res.availableSlots.map(formatTime))),
   });
   private readonly availabilitiesResource = rxResource({
     request: () => this.selectedDoctor()?.id,
-    loader: ({ request }) => this.agendaApi.availabilities(request!)
+    loader: ({ request }) => this.agendaApi.availabilities(request!),
   });
 
   protected readonly submitting = signal(false);
@@ -122,12 +140,16 @@ export class BookingPageComponent {
     if (!slot) return null;
     const day = dayOfWeekOf(parseIso(this.selectedDate()));
     const block = (this.availabilitiesResource.value() ?? []).find(
-      (a) => a.dayOfWeek === day && formatTime(a.startTime) <= slot && slot < formatTime(a.endTime)
+      (a) => a.dayOfWeek === day && formatTime(a.startTime) <= slot && slot < formatTime(a.endTime),
     );
     return addMinutesToTime(slot, block?.slotDurationMinutes ?? FALLBACK_SLOT_MINUTES);
   });
   protected readonly canSubmit = computed(
-    () => !!this.selectedDoctor() && !!this.selectedSlot() && (this.isPatient || !!this.selectedPatient()) && !this.submitting()
+    () =>
+      !!this.selectedDoctor() &&
+      !!this.selectedSlot() &&
+      (this.isPatient || !!this.selectedPatient()) &&
+      !this.submitting(),
   );
 
   protected readonly initials = initials;
@@ -145,7 +167,9 @@ export class BookingPageComponent {
   }
 
   protected selectDoctor(doctor: Staff | null): void {
-    this.selectedDoctor.set(doctor ? { id: doctor.id, name: doctor.name, specialtyName: doctor.specialtyName } : null);
+    this.selectedDoctor.set(
+      doctor ? { id: doctor.id, name: doctor.name, specialtyName: doctor.specialtyName } : null,
+    );
     this.selectedSlot.set(null);
   }
 
@@ -156,6 +180,7 @@ export class BookingPageComponent {
   }
 
   protected submit(): void {
+    if (this.submitting()) return;
     const doctor = this.selectedDoctor();
     const slot = this.selectedSlot();
     const end = this.endTime();
@@ -168,19 +193,23 @@ export class BookingPageComponent {
         doctorId: doctor.id,
         patientId,
         startTime: toLocalDateTime(this.selectedDate(), slot),
-        endTime: toLocalDateTime(this.selectedDate(), end)
+        endTime: toLocalDateTime(this.selectedDate(), end),
       })
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: () => {
-          this.notifications.success(this.isPatient ? 'Solicitud enviada: la clínica confirmará tu cita' : 'Cita agendada y confirmada');
+          this.notifications.success(
+            this.isPatient
+              ? 'Solicitud enviada: la clínica confirmará tu cita'
+              : 'Cita agendada y confirmada',
+          );
           this.router.navigate([this.isPatient ? '/appointments' : '/calendar']);
         },
         error: (error) => {
           this.notifications.error(apiErrorMessage(error, 'No se pudo agendar la cita'));
           this.selectedSlot.set(null);
           this.slotsResource.reload();
-        }
+        },
       });
   }
 }

@@ -5,7 +5,7 @@ import { Observable, finalize } from 'rxjs';
 import { PatientsApi } from '../../core/api/patients.api';
 import { apiErrorMessage } from '../../core/http/api-error';
 import { Patient } from '../../core/models/api.models';
-import { getValidationErrorMessage } from '../../shared/utils/validation-messages.util';
+import { fieldError } from '../../shared/utils/validation-messages.util';
 import { DialogFrameComponent } from '../../shared/ui/dialog-frame/dialog-frame.component';
 
 export interface PatientFormData {
@@ -16,7 +16,7 @@ export interface PatientFormData {
 @Component({
   selector: 'app-patient-form-dialog',
   imports: [DialogFrameComponent, ReactiveFormsModule],
-  templateUrl: './patient-form-dialog.component.html'
+  templateUrl: './patient-form-dialog.component.html',
 })
 export class PatientFormDialogComponent {
   private readonly api = inject(PatientsApi);
@@ -33,12 +33,11 @@ export class PatientFormDialogComponent {
     email: [this.data.patient?.email ?? '', [Validators.required, Validators.email]],
     phoneNumber: [this.data.patient?.phoneNumber ?? ''],
     ci: ['', this.isEdit ? [] : [Validators.required]],
-    password: ['', this.isEdit ? [] : [Validators.required, Validators.minLength(8)]]
+    password: ['', this.isEdit ? [] : [Validators.required, Validators.minLength(8)]],
   });
 
   protected errorOf(name: keyof typeof this.form.controls): string | null {
-    const control = this.form.controls[name];
-    return control.touched ? getValidationErrorMessage(control.errors) : null;
+    return fieldError(this.form.controls[name]);
   }
 
   protected close(): void {
@@ -46,6 +45,7 @@ export class PatientFormDialogComponent {
   }
 
   protected save(): void {
+    if (this.saving()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -54,14 +54,24 @@ export class PatientFormDialogComponent {
     const value = this.form.getRawValue();
     const phoneNumber = value.phoneNumber.trim() || undefined;
     const request: Observable<Patient> = this.isEdit
-      ? this.api.update(this.data.patient!.id, { name: value.name, email: value.email, phoneNumber: phoneNumber ?? null })
-      : this.api.create({ name: value.name, email: value.email, ci: value.ci, password: value.password, phoneNumber });
+      ? this.api.update(this.data.patient!.id, {
+          name: value.name,
+          email: value.email,
+          phoneNumber: phoneNumber ?? null,
+        })
+      : this.api.create({
+          name: value.name,
+          email: value.email,
+          ci: value.ci,
+          password: value.password,
+          phoneNumber,
+        });
 
     this.saving.set(true);
     this.error.set(null);
     request.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: (patient) => this.ref.close(patient),
-      error: (error) => this.error.set(apiErrorMessage(error, 'No se pudo guardar el paciente'))
+      error: (error) => this.error.set(apiErrorMessage(error, 'No se pudo guardar el paciente')),
     });
   }
 }

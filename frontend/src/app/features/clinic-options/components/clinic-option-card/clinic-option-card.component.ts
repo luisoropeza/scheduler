@@ -1,6 +1,5 @@
 import { Component, computed, input, output } from '@angular/core';
 import { IconComponent } from '../../../../shared/ui/icon/icon.component';
-import { ButtonComponentComponent } from '../../../../shared/components/button-component/button-component.component';
 import { Clinic } from '../../../../core/models/api.models';
 
 export type CardAccent = 'primary' | 'secondary' | 'tertiary';
@@ -8,14 +7,14 @@ export type CardAccent = 'primary' | 'secondary' | 'tertiary';
 const ACCENT_CLASSES: Record<CardAccent, { badge: string; icon: string }> = {
   primary: { badge: 'bg-primary/10', icon: 'text-primary' },
   secondary: { badge: 'bg-secondary/10', icon: 'text-secondary' },
-  tertiary: { badge: 'bg-tertiary/10', icon: 'text-tertiary' }
+  tertiary: { badge: 'bg-tertiary/10', icon: 'text-tertiary' },
 };
 
 @Component({
   selector: 'app-clinic-option-card',
-  imports: [IconComponent, ButtonComponentComponent],
+  imports: [IconComponent],
   templateUrl: './clinic-option-card.component.html',
-  host: { class: 'block h-full' }
+  host: { class: 'block h-full' },
 })
 export class ClinicOptionCardComponent {
   clinic = input.required<Clinic>();

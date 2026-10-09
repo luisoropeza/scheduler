@@ -1,4 +1,8 @@
-<app-dialog-frame title="Agregar horario" subtitle="Bloque semanal en el que atiendes" (closed)="close()">
+<app-dialog-frame
+  title="Agregar horario"
+  subtitle="Bloque semanal en el que atiendes"
+  (closed)="close()"
+>
   <form id="availability-form" [formGroup]="form" (ngSubmit)="save()" class="space-y-5">
     <div>
       <p class="field-label">Días</p>
@@ -7,7 +11,12 @@
           <button
             type="button"
             class="chip cursor-pointer px-3 py-1.5 text-sm transition-colors"
-            [class]="selectedDays().has(day.value) ? 'bg-primary text-white' : 'bg-white/60 text-gray-600 hover:bg-white'"
+            [class]="
+              selectedDays().has(day.value)
+                ? 'bg-primary text-white'
+                : 'bg-white/60 text-gray-600 hover:bg-white'
+            "
+            [attr.aria-pressed]="selectedDays().has(day.value)"
             (click)="toggleDay(day.value)"
           >
             {{ day.short }}

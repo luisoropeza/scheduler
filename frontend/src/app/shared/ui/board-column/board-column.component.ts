@@ -8,7 +8,10 @@ import { AppointmentSummaryItem } from '../../../core/models/api.models';
   selector: 'app-board-column',
   imports: [CdkDropList, CdkDrag, BoardCardComponent],
   templateUrl: './board-column.component.html',
-  host: { class: 'glass-panel flex w-80 shrink-0 flex-col rounded-3xl' }
+  host: {
+    class:
+      'glass-panel flex w-[85vw] max-w-80 shrink-0 snap-start flex-col rounded-3xl sm:w-80 xl:w-auto xl:min-w-72 xl:max-w-none xl:flex-1',
+  },
 })
 export class BoardColumnComponent {
   column = input.required<BoardColumn>();

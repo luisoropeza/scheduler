@@ -1,7 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { apiErrorMessage } from '../http/api-error';
 import { toHttpParams } from '../http/http-params.util';
-import { addMinutesToTime, buildMonthMatrix, calendarKeyToIso, formatTime, startOfWeek, toIso, toLocalDateTime } from './calendar.util';
+import {
+  addMinutesToTime,
+  buildMonthMatrix,
+  calendarKeyToIso,
+  formatTime,
+  startOfWeek,
+  toIso,
+  toLocalDateTime,
+} from './calendar.util';
 import { dayOfWeekOf, initials, statusFromDisplay } from './labels.util';
 
 describe('calendar.util', () => {
@@ -59,13 +67,40 @@ describe('http helpers', () => {
   });
 
   it('translates known backend errors', () => {
-    const error = new HttpErrorResponse({ status: 406, error: { status: 406, message: 'That slot is already taken', errors: null } });
+    const error = new HttpErrorResponse({
+      status: 406,
+      error: { status: 406, message: 'That slot is already taken', errors: null },
+    });
     expect(apiErrorMessage(error)).toBe('Ese horario ya fue reservado, elige otro');
   });
 
+  it('only mentions correo/CI for duplicates that are about them', () => {
+    const duplicate = (message: string) =>
+      apiErrorMessage(new HttpErrorResponse({ status: 409, error: { message } }));
+    expect(duplicate('Account with email a@b.com is already exists')).toBe(
+      'Ya existe un registro con ese correo o CI',
+    );
+    expect(duplicate('This specialty already exists')).toBe(
+      'Ya existe un registro con esos datos.',
+    );
+  });
+
   it('prefers field validation messages and falls back per status', () => {
-    const validation = new HttpErrorResponse({ status: 400, error: { message: 'Validation failed', errors: ['no debe ser nulo'] } });
+    const validation = new HttpErrorResponse({
+      status: 400,
+      error: {
+        message: 'Validation failed',
+        errors: [{ field: 'name', message: 'no debe ser nulo' }],
+      },
+    });
     expect(apiErrorMessage(validation)).toBe('no debe ser nulo');
-    expect(apiErrorMessage(new HttpErrorResponse({ status: 0 }))).toBe('No se pudo conectar con el servidor');
+    const emptyDetail = new HttpErrorResponse({
+      status: 400,
+      error: { errors: [{ field: 'name', message: null }] },
+    });
+    expect(apiErrorMessage(emptyDetail)).toBe('Revisa los datos ingresados');
+    expect(apiErrorMessage(new HttpErrorResponse({ status: 0 }))).toBe(
+      'No se pudo conectar con el servidor',
+    );
   });
 });

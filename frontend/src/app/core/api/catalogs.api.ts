@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { RoleOption, Specialty } from '../models/api.models';
+import { Specialty } from '../models/api.models';
 
 const PLACEHOLDER_SPECIALTY = 'None';
 
@@ -14,17 +14,16 @@ export class CatalogsApi {
     return this.http
       .get<Specialty[]>('specialties')
       .pipe(
-        map((list) => list.filter((specialty) => specialty.name !== PLACEHOLDER_SPECIALTY).sort((a, b) => a.name.localeCompare(b.name)))
+        map((list) =>
+          list
+            .filter((specialty) => specialty.name !== PLACEHOLDER_SPECIALTY)
+            .sort((a, b) => a.name.localeCompare(b.name)),
+        ),
       );
   }
 
   /** ADMINISTRATOR only. */
   createSpecialty(name: string): Observable<Specialty> {
     return this.http.post<Specialty>('specialties', { name });
-  }
-
-  /** Staff only. */
-  roles(): Observable<RoleOption[]> {
-    return this.http.get<RoleOption[]>('roles');
   }
 }

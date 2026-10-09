@@ -8,7 +8,7 @@ import { StaffApi } from '../../core/api/staff.api';
 import { apiErrorMessage } from '../../core/http/api-error';
 import { ROLE_ID, Staff } from '../../core/models/api.models';
 import { DialogFrameComponent } from '../../shared/ui/dialog-frame/dialog-frame.component';
-import { getValidationErrorMessage } from '../../shared/utils/validation-messages.util';
+import { fieldError } from '../../shared/utils/validation-messages.util';
 
 export interface StaffFormData {
   /** Absent → create. */
@@ -19,7 +19,7 @@ export interface StaffFormData {
 @Component({
   selector: 'app-staff-form-dialog',
   imports: [DialogFrameComponent, ReactiveFormsModule],
-  templateUrl: './staff-form-dialog.component.html'
+  templateUrl: './staff-form-dialog.component.html',
 })
 export class StaffFormDialogComponent {
   private readonly staffApi = inject(StaffApi);
@@ -30,37 +30,45 @@ export class StaffFormDialogComponent {
   protected readonly isEdit = !!this.data.staff;
   protected readonly roles = [
     { id: ROLE_ID.DOCTOR, label: 'Doctor' },
-    { id: ROLE_ID.ASSISTANT, label: 'Asistente' }
+    { id: ROLE_ID.ASSISTANT, label: 'Asistente' },
   ];
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
 
-  protected readonly specialtiesResource = rxResource({ loader: () => this.catalogsApi.specialties() });
+  protected readonly specialtiesResource = rxResource({
+    loader: () => this.catalogsApi.specialties(),
+  });
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
     name: [this.data.staff?.name ?? '', Validators.required],
     email: [this.data.staff?.email ?? '', [Validators.required, Validators.email]],
-    ci: ['', this.isEdit ? [] : [Validators.required]],
+    ci: ['', this.isEdit ? [] : [Validators.required, Validators.pattern(/^\d+$/)]],
     password: ['', this.isEdit ? [] : [Validators.required, Validators.minLength(8)]],
     roleId: [this.data.staff?.roleName === 'ASSISTANT' ? ROLE_ID.ASSISTANT : ROLE_ID.DOCTOR],
-    specialtyId: [null as number | null]
+    specialtyId: [null as number | null],
   });
 
-  private readonly roleId = toSignal(this.form.controls.roleId.valueChanges, { initialValue: this.form.controls.roleId.value });
-  protected readonly needsSpecialty = computed(() => this.roleId() === ROLE_ID.DOCTOR && this.data.staff?.roleName !== 'ADMINISTRATOR');
+  private readonly roleId = toSignal(this.form.controls.roleId.valueChanges, {
+    initialValue: this.form.controls.roleId.value,
+  });
+  protected readonly needsSpecialty = computed(
+    () => this.roleId() === ROLE_ID.DOCTOR && this.data.staff?.roleName !== 'ADMINISTRATOR',
+  );
 
   constructor() {
     // PersonalResponse only carries the specialty name: preselect its id once the catalog arrives.
     const current = this.data.staff?.specialtyName;
     effect(() => {
-      const match = (this.specialtiesResource.value() ?? []).find((specialty) => specialty.name === current);
-      if (match && this.form.controls.specialtyId.value === null) this.form.controls.specialtyId.setValue(match.id);
+      const match = (this.specialtiesResource.value() ?? []).find(
+        (specialty) => specialty.name === current,
+      );
+      if (match && this.form.controls.specialtyId.value === null)
+        this.form.controls.specialtyId.setValue(match.id);
     });
   }
 
   protected errorOf(name: keyof typeof this.form.controls): string | null {
-    const control = this.form.controls[name];
-    return control.touched ? getValidationErrorMessage(control.errors) : null;
+    return fieldError(this.form.controls[name]);
   }
 
   protected close(): void {
@@ -68,6 +76,7 @@ export class StaffFormDialogComponent {
   }
 
   protected save(): void {
+    if (this.saving()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -80,21 +89,25 @@ export class StaffFormDialogComponent {
     const specialtyId = this.needsSpecialty() ? value.specialtyId : null;
 
     const request: Observable<Staff> = this.isEdit
-      ? this.staffApi.update(this.data.staff!.id, { name: value.name, email: value.email, specialtyId })
+      ? this.staffApi.update(this.data.staff!.id, {
+          name: value.name,
+          email: value.email,
+          specialtyId,
+        })
       : this.staffApi.create({
           name: value.name,
           email: value.email,
           ci: value.ci,
           password: value.password,
           roleId: value.roleId,
-          specialtyId
+          specialtyId,
         });
 
     this.saving.set(true);
     this.error.set(null);
     request.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: (staff) => this.ref.close(staff),
-      error: (error) => this.error.set(apiErrorMessage(error, 'No se pudo guardar'))
+      error: (error) => this.error.set(apiErrorMessage(error, 'No se pudo guardar')),
     });
   }
 }

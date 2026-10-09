@@ -1,9 +1,13 @@
 <app-page-header title="Personal" subtitle="Doctores y asistentes de la clínica">
   <div class="flex flex-wrap items-center gap-3">
-    <app-segmented-tabs [items]="tabs" [selectedId]="resource.roleFilter()" (select)="resource.setRole($event)" />
+    <app-segmented-tabs
+      [items]="tabs"
+      [selectedId]="resource.roleFilter()"
+      (select)="resource.setRole($event)"
+    />
     <button type="button" class="btn btn-primary" (click)="openForm()">
       <app-ui-icon name="plus" class="h-4 w-4" [strokeWidth]="2.4" />
-      Nuevo
+      Nuevo miembro
     </button>
   </div>
 </app-page-header>
@@ -30,17 +34,23 @@
       </div>
     } @else if (resource.isError()) {
       <app-empty-state icon="alert" [title]="resource.errorMessage()">
-        <button type="button" class="btn btn-secondary btn-sm" (click)="resource.reloadStaff()">Reintentar</button>
+        <button type="button" class="btn btn-secondary btn-sm" (click)="resource.reloadStaff()">
+          Reintentar
+        </button>
       </app-empty-state>
     } @else if (!resource.staff().length) {
-      <app-empty-state icon="staff" title="Sin personal" message="Crea doctores y asistentes para empezar a agendar." />
+      <app-empty-state
+        icon="staff"
+        title="Sin personal"
+        message="Crea doctores y asistentes para empezar a agendar."
+      />
     } @else {
       <table class="data-table">
         <thead>
           <tr>
             <th>Nombre</th>
-            <th>Rol</th>
-            <th>Especialidad</th>
+            <th class="hidden md:table-cell">Rol</th>
+            <th class="hidden md:table-cell">Especialidad</th>
             <th>Estado</th>
             <th class="text-right">Acciones</th>
           </tr>
@@ -50,34 +60,54 @@
             <tr>
               <td>
                 <div class="flex items-center gap-3">
-                  <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-bold text-primary">{{
-                    initials(staff.name)
-                  }}</span>
+                  <span
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-bold text-primary"
+                    >{{ initials(staff.name) }}</span
+                  >
                   <div class="min-w-0">
                     <p class="truncate font-bold text-gray-900">
                       {{ staff.name }}
                       @if (staff.id === myId) {
-                        <span class="text-xs font-semibold text-gray-400">(tú)</span>
+                        <span class="text-xs font-semibold text-gray-500">(tú)</span>
                       }
                     </p>
                     <p class="truncate text-xs text-gray-500">{{ staff.email }}</p>
                   </div>
                 </div>
               </td>
-              <td>{{ roleLabel[staff.roleName] }}</td>
-              <td>{{ staff.specialtyName ?? '—' }}</td>
+              <td class="hidden md:table-cell">{{ roleLabel[staff.roleName] }}</td>
+              <td class="hidden md:table-cell">{{ staff.specialtyName ?? '—' }}</td>
               <td>
-                <span class="chip" [class]="staff.active ? 'bg-secondary/10 text-secondary' : 'bg-gray-900/[0.06] text-gray-500'">
+                <span
+                  class="chip"
+                  [class]="
+                    staff.active
+                      ? 'bg-secondary/10 text-secondary'
+                      : 'bg-gray-900/[0.06] text-gray-500'
+                  "
+                >
                   {{ staff.active ? 'Activo' : 'Inactivo' }}
                 </span>
               </td>
               <td>
                 <div class="flex justify-end gap-1">
-                  <button type="button" class="btn-icon" title="Editar" (click)="openForm(staff)">
+                  <button
+                    type="button"
+                    class="btn-icon"
+                    title="Editar"
+                    aria-label="Editar"
+                    (click)="openForm(staff)"
+                  >
                     <app-ui-icon name="edit" class="h-4 w-4" />
                   </button>
                   @if (staff.active && staff.id !== myId) {
-                    <button type="button" class="btn-icon hover:!text-red-600" title="Desactivar" (click)="deactivate(staff)">
+                    <button
+                      type="button"
+                      class="btn-icon hover:!text-red-600"
+                      title="Desactivar"
+                      aria-label="Desactivar"
+                      (click)="deactivate(staff)"
+                    >
                       <app-ui-icon name="block" class="h-4 w-4" />
                     </button>
                   }

@@ -12,12 +12,13 @@ export const ROLE_ID: Record<Role, number> = {
   ADMINISTRATOR: 1,
   DOCTOR: 2,
   ASSISTANT: 3,
-  PATIENT: 4
+  PATIENT: 4,
 };
 
 export type AppointmentStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED';
 
-export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
+export type DayOfWeek =
+  'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 
 /** Spring Data `Page` serialized in VIA_DTO mode. */
 export interface Page<T> {
@@ -41,7 +42,7 @@ export interface ApiError {
   status: number;
   message: string;
   timestamp: string;
-  errors: string[] | null;
+  errors?: { field: string; message: string }[] | null;
 }
 
 // ── Auth ─────────────────────────────────────────────────────────────
@@ -241,11 +242,6 @@ export interface AssignPatientRequest {
 export interface Specialty {
   id: number;
   name: string;
-}
-
-export interface RoleOption {
-  id: number;
-  name: Role;
 }
 
 // ── Doctor agenda ────────────────────────────────────────────────────

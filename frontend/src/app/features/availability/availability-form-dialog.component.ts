@@ -1,6 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { DialogRef } from '@angular/cdk/dialog';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AgendaApi } from '../../core/api/agenda.api';
 import { apiErrorMessage } from '../../core/http/api-error';
@@ -17,7 +23,7 @@ function endAfterStart(group: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-availability-form-dialog',
   imports: [DialogFrameComponent, ReactiveFormsModule],
-  templateUrl: './availability-form-dialog.component.html'
+  templateUrl: './availability-form-dialog.component.html',
 })
 export class AvailabilityFormDialogComponent {
   private readonly api = inject(AgendaApi);
@@ -33,9 +39,9 @@ export class AvailabilityFormDialogComponent {
     {
       startTime: ['08:00', Validators.required],
       endTime: ['12:00', Validators.required],
-      slotDurationMinutes: [30, [Validators.required, Validators.min(5)]]
+      slotDurationMinutes: [30, [Validators.required, Validators.min(5)]],
     },
-    { validators: endAfterStart }
+    { validators: endAfterStart },
   );
 
   protected toggleDay(day: DayOfWeek): void {
@@ -52,6 +58,7 @@ export class AvailabilityFormDialogComponent {
   }
 
   protected async save(): Promise<void> {
+    if (this.saving()) return;
     if (this.form.invalid || !this.selectedDays().size) {
       this.form.markAllAsTouched();
       return;

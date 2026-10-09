@@ -1,16 +1,22 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { initials } from '../../../core/utils/labels.util';
+import { UiIconComponent } from '../ui-icon/ui-icon.component';
 
 @Component({
   selector: 'app-topbar',
-  imports: [RouterLink],
+  imports: [RouterLink, UiIconComponent],
   templateUrl: './topbar.component.html',
-  host: { class: 'flex items-center justify-between gap-6 px-8 py-6' }
+  host: {
+    class: 'flex items-center justify-between gap-3 px-4 py-4 sm:gap-6 sm:px-6 lg:px-8 lg:py-6',
+  },
 })
 export class TopbarComponent {
   userName = input('');
   roleLabel = input('');
+  menuOpen = input(false);
+
+  menu = output<void>();
 
   protected readonly greeting = computed(() => {
     const hour = new Date().getHours();
@@ -20,10 +26,10 @@ export class TopbarComponent {
     () =>
       this.userName()
         .replace(/^(dr|dra)\.?\s+/i, '')
-        .split(' ')[0] ?? ''
+        .split(' ')[0] ?? '',
   );
   protected readonly avatarInitials = computed(() => initials(this.userName()));
   protected readonly today = ((label: string) => label.charAt(0).toUpperCase() + label.slice(1))(
-    new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })
+    new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }),
   );
 }

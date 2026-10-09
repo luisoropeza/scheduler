@@ -8,7 +8,10 @@ import { AppointmentResponse, AppointmentStatus } from '../../core/models/api.mo
 import { ROLES } from '../../core/navigation/navigation';
 import { ConfirmService } from '../../shared/ui/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from '../../shared/services/notification.service';
-import { AppointmentDetailDialogComponent, AppointmentDetailData } from './appointment-detail-dialog.component';
+import {
+  AppointmentDetailDialogComponent,
+  AppointmentDetailData,
+} from './appointment-detail-dialog.component';
 
 /**
  * Confirm / cancel / detail flows shared by the board, the calendar and the appointments list.
@@ -37,10 +40,14 @@ export class AppointmentActionsService {
 
   confirm(id: number, patientName: string): Observable<AppointmentResponse> {
     return this.confirmService
-      .ask({ title: 'Confirmar cita', message: `¿Confirmar la cita de ${patientName}?`, confirmLabel: 'Confirmar' })
+      .ask({
+        title: 'Confirmar cita',
+        message: `¿Confirmar la cita de ${patientName}?`,
+        confirmLabel: 'Confirmar',
+      })
       .pipe(
         filter(Boolean),
-        switchMap(() => this.run(this.api.confirm(id), 'Cita confirmada'))
+        switchMap(() => this.run(this.api.confirm(id), 'Cita confirmada')),
       );
   }
 
@@ -50,28 +57,36 @@ export class AppointmentActionsService {
         title: 'Cancelar cita',
         message: `¿Cancelar la cita de ${patientName}? El horario quedará libre nuevamente.`,
         confirmLabel: 'Cancelar cita',
-        danger: true
+        danger: true,
       })
       .pipe(
         filter(Boolean),
-        switchMap(() => this.run(this.api.cancel(id), 'Cita cancelada'))
+        switchMap(() => this.run(this.api.cancel(id), 'Cita cancelada')),
       );
   }
 
   /** Emits `true` when the appointment changed inside the dialog, so callers can reload. */
   openDetail(id: number): Observable<boolean> {
     return this.dialog
-      .open<boolean, AppointmentDetailData>(AppointmentDetailDialogComponent, { data: { id }, backdropClass: 'glass-backdrop' })
+      .open<boolean, AppointmentDetailData>(AppointmentDetailDialogComponent, {
+        data: { id },
+        backdropClass: 'glass-backdrop',
+        // Footer starts with "Cancelar cita"; don't land focus on a destructive action.
+        autoFocus: 'first-heading',
+      })
       .closed.pipe(map((changed) => changed === true));
   }
 
-  private run(request: Observable<AppointmentResponse>, successMessage: string): Observable<AppointmentResponse> {
+  private run(
+    request: Observable<AppointmentResponse>,
+    successMessage: string,
+  ): Observable<AppointmentResponse> {
     return request.pipe(
       tap(() => this.notifications.success(successMessage)),
       catchError((error) => {
         this.notifications.error(apiErrorMessage(error));
         return EMPTY;
-      })
+      }),
     );
   }
 }

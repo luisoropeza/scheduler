@@ -1,5 +1,13 @@
+import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { Component, computed, input, output, signal } from '@angular/core';
-import { CalendarDay, buildMonthMatrix, formatMonthLabel, formatShortDate, parseIso, toIso } from '../../../core/utils/calendar.util';
+import {
+  CalendarDay,
+  buildMonthMatrix,
+  formatMonthLabel,
+  formatShortDate,
+  parseIso,
+  toIso,
+} from '../../../core/utils/calendar.util';
 
 export interface DateRange {
   from: string;
@@ -16,9 +24,9 @@ interface DayState {
 /** Airbnb-style range popover for the backend's ?from&to filters — replaces raw native date inputs. */
 @Component({
   selector: 'app-date-range-picker',
-  imports: [],
+  imports: [CdkTrapFocus],
   templateUrl: './date-range-picker.component.html',
-  host: { class: 'relative' }
+  host: { class: 'relative', '(keydown.escape)': 'close()' },
 })
 export class DateRangePickerComponent {
   from = input.required<string>();
@@ -32,7 +40,9 @@ export class DateRangePickerComponent {
   protected readonly isOpen = signal(false);
   private readonly viewDate = signal(new Date());
   protected readonly monthLabel = computed(() => formatMonthLabel(this.viewDate()));
-  protected readonly weeks = computed(() => buildMonthMatrix(this.viewDate().getFullYear(), this.viewDate().getMonth()));
+  protected readonly weeks = computed(() =>
+    buildMonthMatrix(this.viewDate().getFullYear(), this.viewDate().getMonth()),
+  );
 
   private readonly draftStart = signal<string | null>(null);
   private readonly draftEnd = signal<string | null>(null);
@@ -41,7 +51,9 @@ export class DateRangePickerComponent {
   protected readonly label = computed(() => {
     const from = this.from();
     const to = this.to();
-    return from === to ? formatShortDate(from) : `${formatShortDate(from)} – ${formatShortDate(to)}`;
+    return from === to
+      ? formatShortDate(from)
+      : `${formatShortDate(from)} – ${formatShortDate(to)}`;
   });
 
   protected toggle(): void {
@@ -124,7 +136,7 @@ export class DateRangePickerComponent {
       isStart: day.iso === start,
       isEnd: day.iso === this.draftEnd(),
       inRange: !!lo && !!hi && day.iso > lo && day.iso < hi,
-      isToday: day.iso === this.today
+      isToday: day.iso === this.today,
     };
   }
 }

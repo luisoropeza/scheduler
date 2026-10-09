@@ -7,7 +7,9 @@ import { UiIconComponent } from '../ui-icon/ui-icon.component';
   selector: 'app-day-agenda-panel',
   imports: [AppointmentListItemComponent, UiIconComponent],
   templateUrl: './day-agenda-panel.component.html',
-  host: { class: 'glass-panel flex min-h-0 w-[22rem] shrink-0 flex-col rounded-3xl p-6' }
+  host: {
+    class: 'glass-panel flex min-h-72 w-full shrink-0 flex-col rounded-3xl p-6 xl:w-[22rem]',
+  },
 })
 export class DayAgendaPanelComponent {
   dayLabel = input.required<string>();

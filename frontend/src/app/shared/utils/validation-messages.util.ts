@@ -1,11 +1,11 @@
-import { ValidationErrors } from '@angular/forms';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 
-const VALIDATION_MESSAGES: Record<string, (error: any) => string> = {
+const VALIDATION_MESSAGES: Record<string, (error: { requiredLength?: number }) => string> = {
   required: () => 'Este campo es obligatorio',
   email: () => 'Ingresa un email válido',
   minlength: (error) => `Debe tener al menos ${error.requiredLength} caracteres`,
   maxlength: (error) => `Debe tener como máximo ${error.requiredLength} caracteres`,
-  pattern: () => 'El formato ingresado no es válido'
+  pattern: () => 'El formato ingresado no es válido',
 };
 
 export function getValidationErrorMessage(errors: ValidationErrors | null): string | null {
@@ -13,4 +13,9 @@ export function getValidationErrorMessage(errors: ValidationErrors | null): stri
 
   const key = Object.keys(errors)[0];
   return VALIDATION_MESSAGES[key]?.(errors[key]) ?? 'Campo inválido';
+}
+
+/** Message to show under a field, only once the user has touched it. */
+export function fieldError(control: AbstractControl): string | null {
+  return control.touched ? getValidationErrorMessage(control.errors) : null;
 }

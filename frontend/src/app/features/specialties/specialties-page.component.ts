@@ -14,7 +14,7 @@ import { SpecialtiesResourceService } from './services/specialties-resource.serv
   imports: [FormsModule, PageHeaderComponent, EmptyStateComponent, UiIconComponent],
   providers: [SpecialtiesResourceService],
   templateUrl: './specialties-page.component.html',
-  host: { class: 'flex min-h-0 flex-1 flex-col' }
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
 })
 export class SpecialtiesPageComponent {
   private readonly api = inject(CatalogsApi);
@@ -26,7 +26,7 @@ export class SpecialtiesPageComponent {
 
   protected create(): void {
     const name = this.name().trim();
-    if (!name) return;
+    if (!name || this.saving()) return;
     this.saving.set(true);
     this.api
       .createSpecialty(name)
@@ -37,7 +37,8 @@ export class SpecialtiesPageComponent {
           this.name.set('');
           this.resource.reloadSpecialties();
         },
-        error: (error) => this.notifications.error(apiErrorMessage(error, 'No se pudo crear la especialidad'))
+        error: (error) =>
+          this.notifications.error(apiErrorMessage(error, 'No se pudo crear la especialidad')),
       });
   }
 }

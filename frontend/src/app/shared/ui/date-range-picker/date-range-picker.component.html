@@ -1,6 +1,8 @@
 <button
   type="button"
   (click)="toggle()"
+  [attr.aria-expanded]="isOpen()"
+  aria-haspopup="dialog"
   class="group inline-flex items-center gap-1.5 rounded-xl bg-gray-900/[0.05] py-1 pl-2.5 pr-2 text-[15px] font-bold text-gray-600 transition-colors hover:bg-gray-900/[0.08] hover:text-gray-900"
 >
   <svg
@@ -31,7 +33,13 @@
 @if (isOpen()) {
   <div class="fixed inset-0 z-40" (click)="close()"></div>
 
-  <div class="glass-modal absolute left-0 z-50 mt-2 w-[19rem] rounded-3xl p-4">
+  <div
+    class="glass-modal absolute left-0 z-50 mt-2 w-[min(19rem,calc(100vw-2rem))] rounded-3xl p-4"
+    role="dialog"
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
+    aria-label="Seleccionar rango de fechas"
+  >
     <div class="mb-3 flex items-center justify-between">
       <button
         type="button"
@@ -56,7 +64,9 @@
       </button>
     </div>
 
-    <div class="mb-1.5 grid grid-cols-7 text-center text-[11px] font-bold tracking-wide text-gray-400">
+    <div
+      class="mb-1.5 grid grid-cols-7 text-center text-[11px] font-bold tracking-wide text-gray-500"
+    >
       @for (weekday of weekdayLabels; track $index) {
         <span>{{ weekday }}</span>
       }

@@ -13,10 +13,6 @@ export class PatientsApi {
     return this.http.get<Page<Patient>>('patients', { params: toHttpParams(query) });
   }
 
-  get(id: number): Observable<Patient> {
-    return this.http.get<Patient>(`patients/${id}`);
-  }
-
   create(request: PatientRegisterRequest): Observable<Patient> {
     return this.http.post<Patient>('patients', request);
   }

@@ -34,7 +34,6 @@
 .glass-panel {
   background: rgb(255 255 255 / 46%);
   backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid rgb(255 255 255 / 70%);
   box-shadow:
     0 12px 32px -10px rgb(15 23 42 / 10%),
@@ -44,7 +43,6 @@
 .glass-card {
   background: rgb(255 255 255 / 68%);
   backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgb(255 255 255 / 90%);
   box-shadow:
     0 6px 16px -8px rgb(15 23 42 / 12%),
@@ -87,9 +85,8 @@ app-board-card:nth-of-type(3n + 3) {
 
 /* Modal surface: same glass language as glass-card, tuned for a form (needs a bit more legibility than a board card). */
 .glass-modal {
-  background: rgb(255 255 255 / 72%);
+  background: rgb(255 255 255 / 88%);
   backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
   border: 1px solid rgb(255 255 255 / 85%);
   box-shadow:
     0 24px 60px -12px rgb(15 23 42 / 35%),
@@ -99,7 +96,6 @@ app-board-card:nth-of-type(3n + 3) {
 .glass-backdrop {
   background: rgb(15 23 42 / 35%);
   backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 
 /* ── Design system primitives ────────────────────────────────────────────────
@@ -140,7 +136,7 @@ app-board-card:nth-of-type(3n + 3) {
   }
 
   .field-input {
-    @apply w-full rounded-2xl border border-gray-900/10 bg-gray-900/[0.04] px-4 py-2.5 text-sm text-gray-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)] transition-colors placeholder:text-gray-400 focus:border-primary/40 focus:bg-white focus:shadow-none focus:ring-2 focus:ring-primary/30 focus:outline-none disabled:opacity-60;
+    @apply w-full rounded-2xl border border-gray-900/10 bg-gray-900/[0.04] px-4 py-2.5 text-sm text-gray-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)] transition-colors placeholder:text-gray-400 focus:border-primary focus:bg-white focus:shadow-none focus:ring-2 focus:ring-primary/60 focus:outline-none disabled:opacity-60;
   }
 
   .field-input.ng-invalid.ng-touched {
@@ -169,5 +165,21 @@ app-board-card:nth-of-type(3n + 3) {
 
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap;
+  }
+}
+
+/* In the base layer so utilities like `focus:outline-none` (inputs use a ring instead) still win. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-card,
+  .glass-card:hover {
+    transition: none;
+    transform: rotate(var(--tilt, 0deg));
   }
 }

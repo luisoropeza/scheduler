@@ -13,14 +13,16 @@ const KNOWN_MESSAGES: [RegExp, string][] = [
   [/in the past/i, 'No se puede agendar en una fecha pasada'],
   [/just can confirm/i, 'Solo se pueden confirmar citas pendientes'],
   [/already cancelled/i, 'La cita ya estaba cancelada'],
-  [/already exists/i, 'Ya existe un registro con ese correo o CI'],
+  [/\b(email|ci)\b.*already exists/i, 'Ya existe un registro con ese correo o CI'],
+  [/user already exists/i, 'Ese usuario ya está registrado en la clínica'],
+  [/already exists/i, 'Ya existe un registro con esos datos.'],
   [/doctor role should have a specialty/i, 'El doctor debe tener una especialidad'],
   [/assistant role shouldn't have a specialty/i, 'El asistente no debe tener especialidad'],
   [/role you have entered is not permitted/i, 'Rol no permitido'],
   [/end time must be after/i, 'La hora de fin debe ser posterior a la de inicio'],
   [/partial block needs/i, 'Indica hora de inicio y fin del bloqueo'],
   [/modified by another request/i, 'Otro usuario modificó este registro, vuelve a intentarlo'],
-  [/not authorize|access denied/i, 'No tienes permiso para realizar esta acción']
+  [/not authorize|access denied/i, 'No tienes permiso para realizar esta acción'],
 ];
 
 const STATUS_FALLBACK: Record<number, string> = {
@@ -30,7 +32,7 @@ const STATUS_FALLBACK: Record<number, string> = {
   403: 'No tienes permiso para realizar esta acción',
   404: 'No se encontró el recurso solicitado',
   406: 'La operación no está permitida',
-  409: 'Conflicto con el estado actual, vuelve a intentarlo'
+  409: 'Conflicto con el estado actual, vuelve a intentarlo',
 };
 
 function translate(message: string): string | null {
@@ -42,7 +44,10 @@ export function apiErrorMessage(error: unknown, fallback = 'Ocurrió un error in
 
   const body = error.error as Partial<ApiError> | string | null;
   if (body && typeof body === 'object') {
-    const details = (body.errors ?? []).map((detail) => translate(detail) ?? detail);
+    const details = (body.errors ?? [])
+      .map((e) => e.message)
+      .filter(Boolean)
+      .map((m) => translate(m) ?? m);
     if (details.length) return details.join('. ');
     if (body.message) {
       const known = translate(body.message);

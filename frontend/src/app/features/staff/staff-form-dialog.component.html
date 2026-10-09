@@ -27,7 +27,13 @@
 
     <div>
       <label class="field-label" for="staff-name">Nombre completo</label>
-      <input id="staff-name" class="field-input" formControlName="name" placeholder="Dr. Juan Pérez" autocomplete="off" />
+      <input
+        id="staff-name"
+        class="field-input"
+        formControlName="name"
+        placeholder="Dr. Juan Pérez"
+        autocomplete="off"
+      />
       @if (errorOf('name'); as message) {
         <p class="field-error">{{ message }}</p>
       }
@@ -35,7 +41,13 @@
 
     <div>
       <label class="field-label" for="staff-email">Email</label>
-      <input id="staff-email" type="email" class="field-input" formControlName="email" autocomplete="off" />
+      <input
+        id="staff-email"
+        type="email"
+        class="field-input"
+        formControlName="email"
+        autocomplete="off"
+      />
       @if (errorOf('email'); as message) {
         <p class="field-error">{{ message }}</p>
       }
@@ -57,14 +69,26 @@
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
           <label class="field-label" for="staff-ci">CI</label>
-          <input id="staff-ci" class="field-input" formControlName="ci" autocomplete="off" />
+          <input
+            id="staff-ci"
+            class="field-input"
+            formControlName="ci"
+            inputmode="numeric"
+            autocomplete="off"
+          />
           @if (errorOf('ci'); as message) {
             <p class="field-error">{{ message }}</p>
           }
         </div>
         <div>
           <label class="field-label" for="staff-password">Contraseña inicial</label>
-          <input id="staff-password" type="password" class="field-input" formControlName="password" autocomplete="new-password" />
+          <input
+            id="staff-password"
+            type="password"
+            class="field-input"
+            formControlName="password"
+            autocomplete="new-password"
+          />
           @if (errorOf('password'); as message) {
             <p class="field-error">{{ message }}</p>
           }
@@ -80,7 +104,7 @@
   <div dialogFooter class="contents">
     <button type="button" class="btn btn-secondary" (click)="close()">Cancelar</button>
     <button type="submit" form="staff-form" class="btn btn-primary" [disabled]="saving()">
-      {{ saving() ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Crear' }}
+      {{ saving() ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Crear miembro' }}
     </button>
   </div>
 </app-dialog-frame>

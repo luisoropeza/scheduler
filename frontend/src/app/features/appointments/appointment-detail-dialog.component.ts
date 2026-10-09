@@ -18,7 +18,7 @@ export interface AppointmentDetailData {
 @Component({
   selector: 'app-appointment-detail-dialog',
   imports: [DialogFrameComponent, StatusBadgeComponent, UiIconComponent],
-  templateUrl: './appointment-detail-dialog.component.html'
+  templateUrl: './appointment-detail-dialog.component.html',
 })
 export class AppointmentDetailDialogComponent {
   private readonly data = inject<AppointmentDetailData>(DIALOG_DATA);
@@ -41,10 +41,16 @@ export class AppointmentDetailDialogComponent {
   });
   protected readonly timeLabel = computed(() => {
     const appointment = this.appointment();
-    return appointment ? `${formatTime(appointment.startTime)} – ${formatTime(appointment.endTime)}` : '';
+    return appointment
+      ? `${formatTime(appointment.startTime)} – ${formatTime(appointment.endTime)}`
+      : '';
   });
-  protected readonly canConfirm = computed(() => !!this.status() && this.actions.canConfirm(this.status()!));
-  protected readonly canCancel = computed(() => !!this.status() && this.actions.canCancel(this.status()!));
+  protected readonly canConfirm = computed(
+    () => !!this.status() && this.actions.canConfirm(this.status()!),
+  );
+  protected readonly canCancel = computed(
+    () => !!this.status() && this.actions.canCancel(this.status()!),
+  );
 
   protected confirm(appointment: AppointmentResponse): void {
     this.apply(this.actions.confirm(appointment.id, appointment.patientName));
@@ -59,13 +65,14 @@ export class AppointmentDetailDialogComponent {
   }
 
   private apply(action: Observable<AppointmentResponse>): void {
+    if (this.busy()) return;
     this.busy.set(true);
     action.subscribe({
       next: (updated) => {
         this.changed = true;
         this.resource.set(updated);
       },
-      complete: () => this.busy.set(false)
+      complete: () => this.busy.set(false),
     });
   }
 }

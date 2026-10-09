@@ -2,12 +2,17 @@
   [title]="isPatient ? 'Mis citas' : 'Citas'"
   [subtitle]="isPatient ? 'Historial y próximas citas' : 'Todas las citas de la clínica'"
 >
-  <div class="flex flex-wrap items-center gap-3">
-    <app-segmented-tabs [items]="tabs" [selectedId]="resource.status()" (select)="setStatus($event)" />
+  <div class="flex min-w-0 max-w-full flex-wrap items-center gap-3">
+    <app-segmented-tabs
+      class="min-w-0"
+      [items]="tabs"
+      [selectedId]="resource.status()"
+      (select)="setStatus($event)"
+    />
     @if (canBook) {
       <a routerLink="/appointments/new" class="btn btn-primary">
         <app-ui-icon name="plus" class="h-4 w-4" [strokeWidth]="2.4" />
-        Nueva cita
+        Agendar cita
       </a>
     }
   </div>
@@ -22,17 +27,29 @@
         }
       </div>
     } @else if (resource.isError()) {
-      <app-empty-state icon="alert" [title]="resource.errorMessage()" message="Intenta nuevamente en unos segundos.">
-        <button type="button" class="btn btn-secondary btn-sm" (click)="resource.reloadAppointments()">Reintentar</button>
+      <app-empty-state
+        icon="alert"
+        [title]="resource.errorMessage()"
+        message="Intenta nuevamente en unos segundos."
+      >
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          (click)="resource.reloadAppointments()"
+        >
+          Reintentar
+        </button>
       </app-empty-state>
     } @else if (!resource.appointments().length) {
       <app-empty-state
         icon="calendar"
         title="No hay citas"
-        [message]="isPatient ? 'Agenda tu primera cita en pocos pasos.' : 'No hay citas con este filtro.'"
+        [message]="
+          isPatient ? 'Agenda tu primera cita en pocos pasos.' : 'No hay citas con este filtro.'
+        "
       >
         @if (canBook) {
-          <a routerLink="/appointments/new" class="btn btn-primary btn-sm">Agendar cita</a>
+          <a routerLink="/appointments/new" class="btn btn-secondary btn-sm">Agendar cita</a>
         }
       </app-empty-state>
     } @else {
@@ -54,7 +71,15 @@
         <tbody>
           @for (row of resource.appointments(); track row.id) {
             <tr class="cursor-pointer" (click)="open(row)">
-              <td class="font-bold text-gray-900">{{ row.dayLabel }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="inline-flex min-h-6 cursor-pointer items-center whitespace-nowrap rounded-lg font-bold text-gray-900 hover:text-primary"
+                  (click)="open(row); $event.stopPropagation()"
+                >
+                  {{ row.dayLabel }}
+                </button>
+              </td>
               <td>{{ row.timeLabel }}</td>
               @if (!isPatient) {
                 <td>
@@ -80,7 +105,13 @@
                       </button>
                     }
                     @if (actions.canCancel(row.statusKey)) {
-                      <button type="button" class="btn btn-sm btn-danger" (click)="cancel(row, $event)">Cancelar</button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-danger"
+                        (click)="cancel(row, $event)"
+                      >
+                        Cancelar cita
+                      </button>
                     }
                   </div>
                 </td>

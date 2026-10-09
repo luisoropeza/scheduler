@@ -28,10 +28,6 @@ export class StaffApi {
     return this.http.get<Page<Staff>>('personal', { params: toHttpParams(filters) });
   }
 
-  get(id: number): Observable<Staff> {
-    return this.http.get<Staff>(`personal/${id}`);
-  }
-
   create(request: StaffRegisterRequest): Observable<Staff> {
     return this.http.post<Staff>('personal', request);
   }

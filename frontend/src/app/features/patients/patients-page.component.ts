@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Dialog } from '@angular/cdk/dialog';
 import { FormsModule } from '@angular/forms';
-import { filter, switchMap } from 'rxjs';
+import { filter, map, of, switchMap } from 'rxjs';
 import { PatientsApi } from '../../core/api/patients.api';
 import { StaffApi } from '../../core/api/staff.api';
 import { AuthService } from '../../core/auth/auth.service';
@@ -13,7 +13,10 @@ import { ConfirmService } from '../../shared/ui/confirm-dialog/confirm-dialog.co
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header/page-header.component';
 import { PaginationComponent } from '../../shared/ui/pagination/pagination.component';
-import { SegmentedTabItem, SegmentedTabsComponent } from '../../shared/ui/segmented-tabs/segmented-tabs.component';
+import {
+  SegmentedTabItem,
+  SegmentedTabsComponent,
+} from '../../shared/ui/segmented-tabs/segmented-tabs.component';
 import { UiIconComponent } from '../../shared/ui/ui-icon/ui-icon.component';
 import { AssignDoctorData, AssignDoctorDialogComponent } from './assign-doctor-dialog.component';
 import { PatientFormData, PatientFormDialogComponent } from './patient-form-dialog.component';
@@ -21,10 +24,17 @@ import { PatientScope, PatientsResourceService } from './services/patients-resou
 
 @Component({
   selector: 'app-patients-page',
-  imports: [FormsModule, PageHeaderComponent, SegmentedTabsComponent, PaginationComponent, EmptyStateComponent, UiIconComponent],
+  imports: [
+    FormsModule,
+    PageHeaderComponent,
+    SegmentedTabsComponent,
+    PaginationComponent,
+    EmptyStateComponent,
+    UiIconComponent,
+  ],
   providers: [PatientsResourceService],
   templateUrl: './patients-page.component.html',
-  host: { class: 'flex min-h-0 flex-1 flex-col' }
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
 })
 export class PatientsPageComponent {
   private readonly patientsApi = inject(PatientsApi);
@@ -39,7 +49,7 @@ export class PatientsPageComponent {
   protected readonly initials = initials;
   protected readonly tabs: SegmentedTabItem[] = [
     { id: 'mine', label: 'Mis pacientes' },
-    { id: 'all', label: 'Todos' }
+    { id: 'all', label: 'Todos' },
   ];
 
   protected setScope(scope: string): void {
@@ -48,24 +58,42 @@ export class PatientsPageComponent {
 
   protected openForm(patient?: Patient): void {
     this.dialog
-      .open<Patient, PatientFormData>(PatientFormDialogComponent, { data: { patient }, backdropClass: 'glass-backdrop' })
-      .closed.pipe(filter(Boolean))
-      .subscribe((saved) => {
-        this.notifications.success(patient ? 'Paciente actualizado' : 'Paciente creado');
-        if (!patient && this.isDoctor) {
-          // New patients of a doctor are linked to them right away so they show up in "Mis pacientes".
-          this.staffApi
-            .assignPatient({ patientId: saved.id, doctorId: this.auth.userId()! })
-            .subscribe(() => this.resource.reloadPatients());
-        } else {
+      .open<Patient, PatientFormData>(PatientFormDialogComponent, {
+        data: { patient },
+        backdropClass: 'glass-backdrop',
+      })
+      .closed.pipe(
+        filter(Boolean),
+        // New patients of a doctor are linked to them right away so they show up in "Mis pacientes".
+        switchMap((saved) =>
+          !patient && this.isDoctor
+            ? this.staffApi
+                .assignPatient({ patientId: saved.id, doctorId: this.auth.userId()! })
+                .pipe(map(() => saved))
+            : of(saved),
+        ),
+      )
+      .subscribe({
+        next: () => {
+          this.notifications.success(patient ? 'Paciente actualizado' : 'Paciente creado');
           this.resource.reloadPatients();
-        }
+        },
+        error: (error) => {
+          // Only assignPatient can fail here: the dialog already created the patient.
+          this.notifications.error(
+            'Paciente creado, pero no se pudo asignar: ' + apiErrorMessage(error),
+          );
+          this.resource.reloadPatients();
+        },
       });
   }
 
   protected manageDoctors(patient: Patient): void {
     this.dialog
-      .open<void, AssignDoctorData>(AssignDoctorDialogComponent, { data: { patient }, backdropClass: 'glass-backdrop' })
+      .open<void, AssignDoctorData>(AssignDoctorDialogComponent, {
+        data: { patient },
+        backdropClass: 'glass-backdrop',
+      })
       .closed.subscribe(() => this.resource.reloadPatients());
   }
 
@@ -74,10 +102,12 @@ export class PatientsPageComponent {
     const mine = this.resource.isMine(patient);
     (mine ? this.staffApi.removePatient(request) : this.staffApi.assignPatient(request)).subscribe({
       next: () => {
-        this.notifications.success(mine ? 'Paciente quitado de tu lista' : 'Paciente agregado a tu lista');
+        this.notifications.success(
+          mine ? 'Paciente quitado de tu lista' : 'Paciente agregado a tu lista',
+        );
         this.resource.reloadPatients();
       },
-      error: (error) => this.notifications.error(apiErrorMessage(error))
+      error: (error) => this.notifications.error(apiErrorMessage(error)),
     });
   }
 
@@ -87,18 +117,18 @@ export class PatientsPageComponent {
         title: 'Desactivar paciente',
         message: `${patient.name} ya no podrá agendar nuevas citas.`,
         confirmLabel: 'Desactivar',
-        danger: true
+        danger: true,
       })
       .pipe(
         filter(Boolean),
-        switchMap(() => this.patientsApi.deactivate(patient.id))
+        switchMap(() => this.patientsApi.deactivate(patient.id)),
       )
       .subscribe({
         next: () => {
           this.notifications.success('Paciente desactivado');
           this.resource.reloadPatients();
         },
-        error: (error) => this.notifications.error(apiErrorMessage(error))
+        error: (error) => this.notifications.error(apiErrorMessage(error)),
       });
   }
 }

@@ -1,4 +1,7 @@
-<app-page-header title="Asistente IA" subtitle="Agenda tu cita conversando, o usa el formulario si prefieres">
+<app-page-header
+  title="Asistente IA"
+  subtitle="Agenda tu cita conversando, o usa el formulario si prefieres"
+>
   <div class="flex gap-2.5">
     @if (messages().length) {
       <button type="button" class="btn btn-ghost" (click)="clear()">Limpiar</button>
@@ -8,10 +11,12 @@
 </app-page-header>
 
 <div class="glass-panel flex min-h-0 flex-1 flex-col rounded-3xl">
-  <div #scroller class="min-h-0 flex-1 space-y-4 overflow-y-auto p-6">
+  <div #scroller class="min-h-0 flex-1 space-y-4 overflow-y-auto p-6" aria-live="polite">
     @if (!messages().length) {
       <div class="flex h-full flex-col items-center justify-center gap-4 text-center">
-        <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <span
+          class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+        >
           <app-ui-icon name="sparkles" class="h-7 w-7" />
         </span>
         <div>
@@ -53,10 +58,16 @@
 
     @if (sending()) {
       <div class="flex">
-        <div class="flex items-center gap-1.5 rounded-3xl rounded-bl-lg bg-white/80 px-4 py-4 shadow-sm">
+        <div
+          class="flex items-center gap-1.5 rounded-3xl rounded-bl-lg bg-white/80 px-4 py-4 shadow-sm"
+        >
           <span class="h-2 w-2 animate-bounce rounded-full bg-gray-400"></span>
-          <span class="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:150ms]"></span>
-          <span class="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:300ms]"></span>
+          <span
+            class="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:150ms]"
+          ></span>
+          <span
+            class="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:300ms]"
+          ></span>
         </div>
       </div>
     }
@@ -68,6 +79,7 @@
         rows="1"
         class="field-input max-h-40 min-h-[46px] resize-none"
         placeholder="Escribe tu mensaje…"
+        aria-label="Mensaje"
         [ngModel]="draft()"
         (ngModelChange)="draft.set($event)"
         (keydown)="onKeydown($event)"
