@@ -44,6 +44,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(a -> {
                     if (publicPaths.length > 0)
                         a.requestMatchers(publicPaths).permitAll();
+                    // The WebSocket handshake can't carry the JWT; STOMP CONNECT is authenticated by JwtChannelInterceptor.
+                    a.requestMatchers("/ws/**").permitAll();
                     a.anyRequest().authenticated();
                 })
                 .exceptionHandling(e -> e

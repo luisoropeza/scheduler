@@ -1,5 +1,6 @@
 package com.example.scheduler.service.impl;
 
+import com.example.scheduler.config.tenant.TenantContext;
 import com.example.scheduler.dto.appointment.AppointmentRequest;
 import com.example.scheduler.entity.Appointment;
 import com.example.scheduler.entity.DoctorAvailability;
@@ -9,6 +10,8 @@ import com.example.scheduler.enums.AppointmentStatus;
 import com.example.scheduler.exception.BusinessException;
 import com.example.scheduler.mapper.AppointmentMapper;
 import com.example.scheduler.repository.*;
+import com.example.scheduler.websocket.AppointmentChangedEvent;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -35,15 +39,15 @@ class AppointmentServiceImplTest {
     @Mock AppointmentRepository appointmentRepository;
     @Mock PatientRepository patientRepository;
     @Mock PersonalRepository personalRepository;
-    @Mock AppointmentMapper appointmentMapper;
-    @Mock ScheduleExceptionRepository scheduleExceptionRepository;
     @Mock DoctorAvailabilityRepository doctorAvailabilityRepository;
+    @Mock ApplicationEventPublisher eventPublisher;
     @InjectMocks AppointmentServiceImpl service;
 
     private final AppointmentRequest request = new AppointmentRequest(DOCTOR_ID, 99L, START, END);
 
     @BeforeEach
     void freeSlot() {
+        TenantContext.setCurrentTenant("clinic_3");
         when(doctorAvailabilityRepository.findByDoctorIdAndDayOfWeekAndActiveTrue(DOCTOR_ID, START.getDayOfWeek()))
                 .thenReturn(List.of(DoctorAvailability.builder().startTime(LocalTime.of(8, 0)).endTime(LocalTime.of(13, 0)).build()));
     }
@@ -56,6 +60,23 @@ class AppointmentServiceImplTest {
 
         verify(patientRepository).getReferenceById(5L);
         assertThat(savedAppointment().getStatus()).isEqualTo(AppointmentStatus.PENDING);
+    }
+
+    @AfterEach
+    void clearTenant() {
+        TenantContext.clear();
+    }
+
+    @Test
+    void bookAppointment_should_publishBoardEventForCallerClinic() {
+        stubSave();
+
+        service.bookAppointment(request, 5L, "PATIENT");
+
+        var captor = ArgumentCaptor.forClass(AppointmentChangedEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().clinicId()).isEqualTo(3L);
+        assertThat(captor.getValue().payload().status()).isEqualTo(AppointmentStatus.PENDING);
     }
 
     @Test

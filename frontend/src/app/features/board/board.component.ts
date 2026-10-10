@@ -1,8 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CdkDragDrop, CdkDropListGroup, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Observable } from 'rxjs';
+import { Observable, debounceTime, merge } from 'rxjs';
 import { AppointmentsApi } from '../../core/api/appointments.api';
+import { BoardSocket } from '../../core/api/board.socket';
 import {
   AppointmentResponse,
   AppointmentStatus,
@@ -53,15 +54,26 @@ export class BoardComponent {
   protected readonly dateTo = signal(toIso(addDays(new Date(), 6)));
   protected readonly showDates = computed(() => this.dateFrom() !== this.dateTo());
 
+  /** Bumped by socket events: unlike reload(), a new request also restarts an in-flight load. */
+  private readonly tick = signal(0);
+
   protected readonly resource = rxResource({
-    request: () => ({ from: this.dateFrom(), to: this.dateTo() }),
-    loader: ({ request }) => this.api.board(request),
+    request: () => ({ from: this.dateFrom(), to: this.dateTo(), tick: this.tick() }),
+    loader: ({ request: { from, to } }) => this.api.board({ from, to }),
   });
 
   protected readonly columns = computed<BoardColumn[]>(() => {
     const board = this.resource.value();
     return COLUMN_DEFS.map((def) => ({ ...def, appointments: [...(board?.[def.id] ?? [])] }));
   });
+
+  constructor() {
+    // Live updates: a status change (or a reconnect, to resync) reloads from REST, which applies role filtering.
+    const socket = inject(BoardSocket);
+    merge(socket.events$, socket.connected$)
+      .pipe(debounceTime(300), takeUntilDestroyed())
+      .subscribe(() => this.tick.update((n) => n + 1));
+  }
 
   protected setDateRange(range: DateRange): void {
     this.dateFrom.set(range.from);

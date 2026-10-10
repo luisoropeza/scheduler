@@ -6,4 +6,10 @@ module.exports = {
     secure: false,
     changeOrigin: true,
   },
+  "/ws": {
+    target: process.env.BACKEND_URL || "http://localhost:8080",
+    ws: true,
+    secure: false,
+    changeOrigin: true,
+  },
 };

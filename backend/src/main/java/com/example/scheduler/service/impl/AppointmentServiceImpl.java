@@ -1,5 +1,6 @@
 package com.example.scheduler.service.impl;
 
+import com.example.scheduler.config.tenant.TenantContext;
 import com.example.scheduler.dto.appointment.AppointmentRequest;
 import com.example.scheduler.dto.appointment.AppointmentResponse;
 import com.example.scheduler.dto.appointment.AppointmentSummaryItem;
@@ -13,7 +14,10 @@ import com.example.scheduler.exception.ResourceNotFoundException;
 import com.example.scheduler.mapper.AppointmentMapper;
 import com.example.scheduler.repository.*;
 import com.example.scheduler.service.AppointmentService;
+import com.example.scheduler.websocket.AppointmentChangedEvent;
+import com.example.scheduler.websocket.BoardEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -42,6 +46,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentMapper appointmentMapper;
     private final ScheduleExceptionRepository  scheduleExceptionRepository;
     private final DoctorAvailabilityRepository  doctorAvailabilityRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -70,7 +75,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .endTime(request.endTime())
                 .status(AppointmentStatus.PENDING)
                 .build();
-        return appointmentMapper.toResponse(appointmentRepository.save(appointment));
+        return appointmentMapper.toResponse(saveAndNotify(appointment));
     }
 
     @Override
@@ -93,7 +98,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (appointment.getStatus() != AppointmentStatus.PENDING)
             throw new BusinessException("Just can confirm an appointment pending");
         appointment.setStatus(AppointmentStatus.CONFIRMED);
-        return appointmentMapper.toResponse(appointmentRepository.save(appointment));
+        return appointmentMapper.toResponse(saveAndNotify(appointment));
     }
 
     @Override
@@ -104,7 +109,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (appointment.getStatus() == AppointmentStatus.CANCELLED)
             throw new BusinessException("This appointment is already cancelled");
         appointment.setStatus(AppointmentStatus.CANCELLED);
-        return appointmentMapper.toResponse(appointmentRepository.save(appointment));
+        return appointmentMapper.toResponse(saveAndNotify(appointment));
     }
 
     @Override
@@ -149,6 +154,15 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointment.getStatus(),
                 appointment.getDoctor().getId(),
                 appointment.getPatient().getId());
+    }
+
+    /** Saves and publishes a board event, pushed to the clinic's subscribers after commit. */
+    private Appointment saveAndNotify(Appointment appointment) {
+        var saved = appointmentRepository.save(appointment);
+        // The tenant is "clinic_<id>" (set by JwtAuthFilter), so the clinic id is known without another query.
+        var clinicId = Long.valueOf(TenantContext.getCurrentTenant().substring("clinic_".length()));
+        eventPublisher.publishEvent(new AppointmentChangedEvent(clinicId, new BoardEvent(saved.getId(), saved.getStatus())));
+        return saved;
     }
 
     private Appointment getAppointmentOrThrowById(Long appointmentId) {
