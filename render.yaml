@@ -2,6 +2,7 @@ services:
   - type: web
     name: scheduler-backend
     runtime: docker
+    plan: free
     rootDir: backend
     dockerfilePath: ./Dockerfile
     envVars:
@@ -34,11 +35,11 @@ services:
   - type: web
     name: scheduler-frontend
     runtime: docker
+    plan: free
     rootDir: frontend
     dockerfilePath: ./Dockerfile
     envVars:
-      - key: BACKEND_HOST    # host:puerto privado del backend
-        fromService:
-          type: web
-          name: scheduler-backend
-          property: hostport
+      # Plan free no recibe tráfico por red privada: el proxy va a la URL pública.
+      # Si Render le asigna otro nombre al backend, actualízala aquí.
+      - key: BACKEND_URL
+        value: https://scheduler-backend.onrender.com
