@@ -14,7 +14,7 @@ function wsUrl(path: string): string {
  * STOMP connection to the backend (`/ws`). Connected only while logged in; the JWT goes in the
  * CONNECT frame and is re-read on every (re)connect.
  */
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class BoardSocket {
   private readonly auth = inject(AuthService);
   private readonly zone = inject(NgZone);

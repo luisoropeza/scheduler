@@ -41,6 +41,7 @@ const COLUMN_DEFS: { id: AppointmentStatus; title: string; accentClass: string }
     DateRangePickerComponent,
     UiIconComponent,
   ],
+  providers: [BoardSocket],
   templateUrl: './board.component.html',
   host: { class: 'flex min-h-0 flex-1 flex-col' },
 })
