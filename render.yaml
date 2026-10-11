@@ -15,7 +15,7 @@ services:
         sync: false
       - key: JWT_SECRET      # Render genera un valor aleatorio de 256 bits
         generateValue: true
-      - key: CORS_ALLOWED_ORIGINS  # el front usa proxy (mismo origen); pon aquí la URL del front si llamas al back directo
+      - key: CORS_ALLOWED_ORIGINS  # nginx reenvía el Origin del front en /ws: si restringes, incluye la URL del front
         value: "*"
       - key: MAIL_HOST
         sync: false
