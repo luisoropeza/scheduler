@@ -108,7 +108,6 @@ export interface AppointmentRequest {
   doctorId: number;
   patientId: number;
   startTime: string;
-  endTime: string;
 }
 
 export interface AppointmentResponse {
@@ -236,10 +235,15 @@ export interface Availability extends AvailabilityRequest {
   active: boolean;
 }
 
+export interface TimeSlot {
+  startTime: string;
+  endTime: string;
+}
+
 export interface AvailableSlots {
   date: string;
   doctorId: number;
-  availableSlots: string[];
+  availableSlots: TimeSlot[];
 }
 
 export interface ScheduleExceptionRequest {

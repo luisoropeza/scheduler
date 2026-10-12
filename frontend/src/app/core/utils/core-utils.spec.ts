@@ -70,8 +70,8 @@ describe('http helpers', () => {
 
   it('translates known backend errors', () => {
     const error = new HttpErrorResponse({
-      status: 406,
-      error: { status: 406, message: 'That slot is already taken', errors: null },
+      status: 409,
+      error: { status: 409, message: 'That slot is already taken', errors: null },
     });
     expect(apiErrorMessage(error)).toBe('Ese horario ya fue reservado, elige otro');
   });

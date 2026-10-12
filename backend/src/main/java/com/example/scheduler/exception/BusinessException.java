@@ -4,6 +4,6 @@ import org.springframework.http.HttpStatus;
 
 public class BusinessException extends ApiException {
     public BusinessException(String message) {
-        super(HttpStatus.NOT_ACCEPTABLE, message);
+        super(HttpStatus.CONFLICT, message);
     }
 }

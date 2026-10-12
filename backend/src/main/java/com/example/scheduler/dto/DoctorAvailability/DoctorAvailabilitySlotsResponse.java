@@ -7,5 +7,7 @@ import java.util.List;
 public record DoctorAvailabilitySlotsResponse(
         LocalDate date,
         Long doctorId,
-        List<LocalTime> availableSlots
-) {}
+        List<Slot> availableSlots
+) {
+    public record Slot(LocalTime startTime, LocalTime endTime) {}
+}

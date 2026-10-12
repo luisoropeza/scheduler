@@ -1,6 +1,7 @@
 package com.example.scheduler.service.impl;
 
 import com.example.scheduler.dto.DoctorAvailability.DoctorAvailabilitySlotsResponse;
+import com.example.scheduler.dto.DoctorAvailability.DoctorAvailabilitySlotsResponse.Slot;
 import com.example.scheduler.dto.DoctorAvailability.DoctorAvailabilityRequest;
 import com.example.scheduler.dto.DoctorAvailability.DoctorAvailabilityResponse;
 import com.example.scheduler.entity.DoctorAvailability;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -74,7 +76,7 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
         var slotsAfterExceptions = generatedSlots.stream()
                 .filter(slot -> partialExceptions.stream()
                         .noneMatch(e ->
-                                !slot.isBefore(e.getStartTime()) && slot.isBefore(e.getEndTime()))
+                                !slot.startTime().isBefore(e.getStartTime()) && slot.startTime().isBefore(e.getEndTime()))
                 )
                 .toList();
         var startOfDay = date.atStartOfDay();
@@ -89,8 +91,8 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
                 .map(a -> a.getStartTime().toLocalTime())
                 .toList();
         var availableSlots = slotsAfterExceptions.stream()
-                .filter(slot -> !bookedStartTimes.contains(slot))
-                .sorted()
+                .filter(slot -> !bookedStartTimes.contains(slot.startTime()))
+                .sorted(Comparator.comparing(Slot::startTime))
                 .toList();
         return new DoctorAvailabilitySlotsResponse(date, doctorId, availableSlots);
     }
@@ -106,15 +108,16 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
         availability.setActive(false);
     }
 
-    private List<LocalTime> createGeneratedSlots(List<DoctorAvailability> availabilities) {
-        var generatedSlots = new ArrayList<LocalTime>();
+    private List<Slot> createGeneratedSlots(List<DoctorAvailability> availabilities) {
+        var generatedSlots = new ArrayList<Slot>();
         for (var availability : availabilities) {
             var current = availability.getStartTime();
             var end = availability.getEndTime();
             var duration = availability.getSlotDurationMinutes();
             while (current.plusMinutes(duration).isBefore(end) || current.plusMinutes(duration).equals(end)) {
-                generatedSlots.add(current);
-                current = current.plusMinutes(duration);
+                var next = current.plusMinutes(duration);
+                generatedSlots.add(new Slot(current, next));
+                current = next;
             }
         }
         return generatedSlots;

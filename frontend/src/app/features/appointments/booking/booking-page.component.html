@@ -231,19 +231,19 @@
         </app-empty-state>
       } @else {
         <div class="grid grid-cols-4 gap-2 sm:grid-cols-6">
-          @for (slot of slotsResource.value() ?? []; track slot) {
+          @for (slot of slotsResource.value() ?? []; track slot.startTime) {
             <button
               type="button"
               class="cursor-pointer rounded-2xl py-2.5 text-sm font-bold transition-all"
               [class]="
-                selectedSlot() === slot
+                selectedSlot()?.startTime === slot.startTime
                   ? 'bg-primary text-white shadow-lg shadow-primary/30'
                   : 'bg-white/60 text-gray-700 hover:bg-white'
               "
-              [attr.aria-pressed]="selectedSlot() === slot"
+              [attr.aria-pressed]="selectedSlot()?.startTime === slot.startTime"
               (click)="selectedSlot.set(slot)"
             >
-              {{ slot }}
+              {{ slot.startTime }}
             </button>
           } @empty {
             <app-empty-state
@@ -285,7 +285,11 @@
       <div>
         <dt class="text-xs font-bold uppercase tracking-wide text-gray-500">Horario</dt>
         <dd class="mt-0.5 font-bold text-gray-900">
-          {{ selectedSlot() ? selectedSlot() + ' – ' + endTime() : '—' }}
+          @if (selectedSlot(); as slot) {
+            {{ slot.startTime }} – {{ slot.endTime }}
+          } @else {
+            —
+          }
         </dd>
       </div>
     </dl>

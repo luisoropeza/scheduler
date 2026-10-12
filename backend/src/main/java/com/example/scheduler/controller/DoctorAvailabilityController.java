@@ -38,17 +38,16 @@ public class DoctorAvailabilityController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{doctorId}")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ASSISTANT', 'PATIENT')")
-    public ResponseEntity<List<DoctorAvailabilityResponse>> getAllDoctorAvailability(@PathVariable Long doctorId, Authentication auth){
-        var role = SecurityUtils.extractRole(auth);
-        if(role.equals(ERole.DOCTOR.name()))
-            return ResponseEntity.ok(doctorAvailabilityService.getDoctorAvailabilities(Long.parseLong(auth.getName())));
-        return ResponseEntity.ok(doctorAvailabilityService.getDoctorAvailabilities(doctorId));
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('DOCTOR')")
+    @Operation(summary = "GET /api/doctorAvailability/me — list the weekly availability blocks of the current doctor")
+    public ResponseEntity<List<DoctorAvailabilityResponse>> getAllDoctorAvailability(Authentication auth){
+        return ResponseEntity.ok(doctorAvailabilityService.getDoctorAvailabilities(Long.parseLong(auth.getName())));
     }
 
-    @GetMapping("/{doctorId}/availables")
+    @GetMapping("/doctor/{doctorId}/availables")
     @PreAuthorize("hasAnyRole('DOCTOR', 'ASSISTANT', 'PATIENT')")
+    @Operation(summary = "GET /api/doctorAvailability/doctor/{doctorId}/availables?date={date} — free slots (startTime/endTime) of a doctor on a date; a doctor always gets their own")
     public ResponseEntity<DoctorAvailabilitySlotsResponse> getDoctorAvailabilitySlots(@PathVariable Long doctorId, @RequestParam LocalDate date, Authentication auth){
         var role = SecurityUtils.extractRole(auth);
         if (role.equals(ERole.DOCTOR.name()))
