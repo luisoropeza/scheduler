@@ -16,7 +16,7 @@ public interface AppointmentService {
     AppointmentResponse findAppointmentById(Long appointmentId, Long userId, String role);
     Page<AppointmentResponse> findAllAppointments(Long doctorId, Long patientId, AppointmentStatus status, Pageable pageable);
     AppointmentResponse confirmAppointmentById(Long AppointmentId, Long userId, String role);
-    AppointmentResponse cancelAppointmentById(Long AppointmentId, Long userId, String role);
+    AppointmentResponse cancelAppointmentById(Long AppointmentId, String reason, Long userId, String role);
     Map<AppointmentStatus, List<AppointmentSummaryItem>> getBoardByRange(LocalDate from, LocalDate to, Long doctorId, Long patientId);
     Map<String, List<AppointmentSummaryItem>> getCalendar(int month, int year, Long doctorId, Long patientId);
 }

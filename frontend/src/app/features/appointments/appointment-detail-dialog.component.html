@@ -22,6 +22,26 @@
         <app-status-badge [status]="appt.status" />
       </div>
 
+      @if (appt.status === 'CANCELLED') {
+        <div class="flex items-start gap-3 rounded-2xl bg-white/60 px-4 py-3">
+          <span
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-900/[0.06] text-gray-500"
+          >
+            <app-ui-icon name="chat" class="h-5 w-5" />
+          </span>
+          <div class="min-w-0 pt-0.5">
+            <p class="text-xs font-bold uppercase tracking-wide text-gray-500">Motivo de cancelación</p>
+            @if (appt.cancellationReason) {
+              <p class="mt-0.5 whitespace-pre-line break-words text-[15px] leading-relaxed text-gray-800">
+                {{ appt.cancellationReason }}
+              </p>
+            } @else {
+              <p class="mt-0.5 text-sm italic text-gray-400">No se indicó un motivo.</p>
+            }
+          </div>
+        </div>
+      }
+
       <div class="flex items-center gap-3 rounded-2xl bg-white/60 px-4 py-3">
         <span
           class="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/10 text-secondary"
