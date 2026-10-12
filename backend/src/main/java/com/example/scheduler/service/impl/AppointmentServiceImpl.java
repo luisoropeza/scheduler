@@ -7,7 +7,6 @@ import com.example.scheduler.dto.appointment.AppointmentSummaryItem;
 import com.example.scheduler.entity.Appointment;
 import com.example.scheduler.enums.AppointmentStatus;
 import com.example.scheduler.enums.ERole;
-import com.example.scheduler.exception.BadRequestException;
 import com.example.scheduler.exception.BusinessException;
 import com.example.scheduler.exception.ForbiddenException;
 import com.example.scheduler.exception.ResourceNotFoundException;
@@ -23,16 +22,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -54,25 +53,20 @@ public class AppointmentServiceImpl implements AppointmentService {
         // A patient can only book for itself. Every new appointment starts PENDING until staff confirms it.
         var isPatient = ERole.PATIENT.name().equals(role);
         var patientId = isPatient ? userId : request.patientId();
-        if (!request.endTime().isAfter(request.startTime()))
-            throw new BadRequestException("The end time must be after the start time");
-        var appointmentDate = request.startTime().toLocalDate();
-        var startTime = request.startTime().toLocalTime();
-        var endTime = request.endTime().toLocalTime();
-        var dayOfWeek = appointmentDate.getDayOfWeek();
-        if (isBlocked(request.doctorId(), appointmentDate))
+        var startTime = request.startTime();
+        if (isBlocked(request.doctorId(), startTime.toLocalDate()))
             throw new BusinessException("That schedule is blocked");
-        if (!fitsInAvailability(request.doctorId(), dayOfWeek, startTime, endTime))
-            throw new BusinessException("That Schedule is out of journey");
-        if (isSlotTaken(request.doctorId(), request.startTime(), request.endTime()))
+        var endTime = findSlotEnd(request.doctorId(), startTime)
+                .orElseThrow(() -> new BusinessException("That Schedule is out of journey"));
+        if (isSlotTaken(request.doctorId(), startTime, endTime))
             throw new BusinessException("That slot is already taken");
         var doctor = personalRepository.getReferenceById(request.doctorId());
         var patient = patientRepository.getReferenceById(patientId);
         var appointment = Appointment.builder()
                 .doctor(doctor)
                 .patient(patient)
-                .startTime(request.startTime())
-                .endTime(request.endTime())
+                .startTime(startTime)
+                .endTime(endTime)
                 .status(AppointmentStatus.PENDING)
                 .build();
         return appointmentMapper.toResponse(saveAndNotify(appointment));
@@ -185,12 +179,21 @@ public class AppointmentServiceImpl implements AppointmentService {
         );
     }
 
-    private boolean fitsInAvailability(Long  doctorId, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-        var availabilities = doctorAvailabilityRepository
-                .findByDoctorIdAndDayOfWeekAndActiveTrue(doctorId, dayOfWeek);
-        return availabilities.stream().anyMatch(a ->
-                !startTime.isBefore(a.getStartTime()) && !endTime.isAfter(a.getEndTime())
-        );
+    /**
+     * End of the slot starting at {@code startTime}: an active block of that day must contain it on its slot grid
+     * ((start - block start) % slot == 0) with the whole slot before the block ends. Empty when no block matches.
+     */
+    private Optional<LocalDateTime> findSlotEnd(Long doctorId, LocalDateTime startTime) {
+        var time = startTime.toLocalTime();
+        return doctorAvailabilityRepository.findByDoctorIdAndDayOfWeekAndActiveTrue(doctorId, startTime.getDayOfWeek()).stream()
+                .filter(a -> {
+                    var slotSeconds = a.getSlotDurationMinutes() * 60L;
+                    var offset = Duration.between(a.getStartTime(), time).toSeconds();
+                    return offset >= 0 && offset % slotSeconds == 0
+                            && Duration.between(time, a.getEndTime()).toSeconds() >= slotSeconds;
+                })
+                .findFirst()
+                .map(a -> startTime.plusMinutes(a.getSlotDurationMinutes()));
     }
 
     private boolean isSlotTaken(Long doctorId, LocalDateTime startTime, LocalDateTime endTime) {

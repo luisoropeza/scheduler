@@ -31,7 +31,6 @@ const STATUS_FALLBACK: Record<number, string> = {
   401: 'Tu sesión expiró, vuelve a iniciar sesión',
   403: 'No tienes permiso para realizar esta acción',
   404: 'No se encontró el recurso solicitado',
-  406: 'La operación no está permitida',
   409: 'Conflicto con el estado actual, vuelve a intentarlo',
 };
 

@@ -10,7 +10,5 @@ public record AppointmentRequest(
         @NotNull
         Long patientId,
         @NotNull
-        LocalDateTime startTime,
-        @NotNull
-        LocalDateTime endTime
+        LocalDateTime startTime
 ) {}

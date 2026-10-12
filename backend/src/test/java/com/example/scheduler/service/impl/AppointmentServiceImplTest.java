@@ -40,16 +40,19 @@ class AppointmentServiceImplTest {
     @Mock PatientRepository patientRepository;
     @Mock PersonalRepository personalRepository;
     @Mock DoctorAvailabilityRepository doctorAvailabilityRepository;
+    @Mock ScheduleExceptionRepository scheduleExceptionRepository;
+    @Mock AppointmentMapper appointmentMapper;
     @Mock ApplicationEventPublisher eventPublisher;
     @InjectMocks AppointmentServiceImpl service;
 
-    private final AppointmentRequest request = new AppointmentRequest(DOCTOR_ID, 99L, START, END);
+    private final AppointmentRequest request = new AppointmentRequest(DOCTOR_ID, 99L, START);
 
     @BeforeEach
     void freeSlot() {
         TenantContext.setCurrentTenant("clinic_3");
         when(doctorAvailabilityRepository.findByDoctorIdAndDayOfWeekAndActiveTrue(DOCTOR_ID, START.getDayOfWeek()))
-                .thenReturn(List.of(DoctorAvailability.builder().startTime(LocalTime.of(8, 0)).endTime(LocalTime.of(13, 0)).build()));
+                .thenReturn(List.of(DoctorAvailability.builder()
+                        .startTime(LocalTime.of(8, 0)).endTime(LocalTime.of(13, 0)).slotDurationMinutes(30).build()));
     }
 
     @Test
@@ -60,6 +63,25 @@ class AppointmentServiceImplTest {
 
         verify(patientRepository).getReferenceById(5L);
         assertThat(savedAppointment().getStatus()).isEqualTo(AppointmentStatus.PENDING);
+    }
+
+    @Test
+    void bookAppointment_should_computeEndTimeFromSlotDuration() {
+        stubSave();
+
+        service.bookAppointment(request, 5L, "PATIENT");
+
+        assertThat(savedAppointment().getEndTime()).isEqualTo(END);
+    }
+
+    @Test
+    void bookAppointment_should_reject_when_startTimeOffSlotGrid() {
+        var offGrid = new AppointmentRequest(DOCTOR_ID, 99L, START.plusMinutes(10));
+
+        assertThatThrownBy(() -> service.bookAppointment(offGrid, 5L, "PATIENT"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("That Schedule is out of journey");
+        verify(appointmentRepository, never()).save(any());
     }
 
     @AfterEach

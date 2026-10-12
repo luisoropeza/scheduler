@@ -11,24 +11,21 @@ import { PatientsApi } from '../../../core/api/patients.api';
 import { StaffApi } from '../../../core/api/staff.api';
 import { AuthService } from '../../../core/auth/auth.service';
 import { apiErrorMessage } from '../../../core/http/api-error';
-import { Patient, Staff } from '../../../core/models/api.models';
+import { Patient, Staff, TimeSlot } from '../../../core/models/api.models';
 import {
   addDays,
-  addMinutesToTime,
   formatLongDate,
   formatTime,
-  parseIso,
   toIso,
   toLocalDateTime,
 } from '../../../core/utils/calendar.util';
-import { dayOfWeekOf, initials } from '../../../core/utils/labels.util';
+import { initials } from '../../../core/utils/labels.util';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { EmptyStateComponent } from '../../../shared/ui/empty-state/empty-state.component';
 import { PageHeaderComponent } from '../../../shared/ui/page-header/page-header.component';
 import { UiIconComponent } from '../../../shared/ui/ui-icon/ui-icon.component';
 
 const DATE_STRIP_DAYS = 14;
-const FALLBACK_SLOT_MINUTES = 30;
 
 interface DoctorOption {
   id: number;
@@ -123,7 +120,8 @@ export class BookingPageComponent {
       month: date.toLocaleDateString('es-ES', { month: 'short' }).replace('.', ''),
     };
   });
-  protected readonly selectedSlot = signal<string | null>(null);
+  /** Selected slot, times as `HH:mm`. */
+  protected readonly selectedSlot = signal<TimeSlot | null>(null);
 
   protected readonly slotsResource = rxResource({
     request: () => {
@@ -133,25 +131,19 @@ export class BookingPageComponent {
     loader: ({ request }) =>
       this.agendaApi
         .availableSlots(request!.doctorId, request!.date)
-        .pipe(map((res) => res.availableSlots.map(formatTime))),
-  });
-  private readonly availabilitiesResource = rxResource({
-    request: () => this.selectedDoctor()?.id,
-    loader: ({ request }) => this.agendaApi.availabilities(request!),
+        .pipe(
+          map((res) =>
+            res.availableSlots.map((s) => ({
+              startTime: formatTime(s.startTime),
+              endTime: formatTime(s.endTime),
+            })),
+          ),
+        ),
   });
 
   protected readonly submitting = signal(false);
 
   protected readonly dateLabel = computed(() => formatLongDate(this.selectedDate()));
-  protected readonly endTime = computed(() => {
-    const slot = this.selectedSlot();
-    if (!slot) return null;
-    const day = dayOfWeekOf(parseIso(this.selectedDate()));
-    const block = (this.availabilitiesResource.value() ?? []).find(
-      (a) => a.dayOfWeek === day && formatTime(a.startTime) <= slot && slot < formatTime(a.endTime),
-    );
-    return addMinutesToTime(slot, block?.slotDurationMinutes ?? FALLBACK_SLOT_MINUTES);
-  });
   protected readonly canSubmit = computed(
     () =>
       !!this.selectedDoctor() &&
@@ -191,17 +183,15 @@ export class BookingPageComponent {
     if (this.submitting()) return;
     const doctor = this.selectedDoctor();
     const slot = this.selectedSlot();
-    const end = this.endTime();
     const patientId = this.isPatient ? this.auth.userId() : this.selectedPatient()?.id;
-    if (!doctor || !slot || !end || !patientId) return;
+    if (!doctor || !slot || !patientId) return;
 
     this.submitting.set(true);
     this.appointmentsApi
       .book({
         doctorId: doctor.id,
         patientId,
-        startTime: toLocalDateTime(this.selectedDate(), slot),
-        endTime: toLocalDateTime(this.selectedDate(), end),
+        startTime: toLocalDateTime(this.selectedDate(), slot.startTime),
       })
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({

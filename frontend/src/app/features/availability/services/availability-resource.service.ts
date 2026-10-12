@@ -22,7 +22,7 @@ export class AvailabilityResourceService {
   public previewDate = signal(this.today);
 
   private _availabilityResource = rxResource({
-    loader: () => this._agendaApi.availabilities(this._doctorId),
+    loader: () => this._agendaApi.availabilities(),
   });
   private _exceptionsResource = rxResource({
     loader: () => this._agendaApi.exceptions(this.today),
@@ -32,7 +32,7 @@ export class AvailabilityResourceService {
     loader: ({ request }) =>
       this._agendaApi
         .availableSlots(this._doctorId, request)
-        .pipe(map((response) => response.availableSlots.map(formatTime))),
+        .pipe(map((response) => response.availableSlots.map((slot) => formatTime(slot.startTime)))),
   });
 
   public week = computed(() => {

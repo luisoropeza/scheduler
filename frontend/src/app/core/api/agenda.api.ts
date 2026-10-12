@@ -9,8 +9,9 @@ import { toHttpParams } from '../http/http-params.util';
 export class AgendaApi {
   private readonly http = inject(HttpClient);
 
-  availabilities(doctorId: number): Observable<Availability[]> {
-    return this.http.get<Availability[]>(`doctorAvailability/${doctorId}`);
+  /** DOCTOR: own weekly blocks. */
+  availabilities(): Observable<Availability[]> {
+    return this.http.get<Availability[]>('doctorAvailability/me');
   }
 
   addAvailability(request: AvailabilityRequest): Observable<Availability> {
@@ -21,9 +22,9 @@ export class AgendaApi {
     return this.http.delete<void>(`doctorAvailability/${id}`);
   }
 
-  /** Free slot start times for `date` (already excludes blocks, bookings and past times). */
+  /** Free slots (start/end) for `date` (already excludes blocks, bookings and past times). */
   availableSlots(doctorId: number, date: string): Observable<AvailableSlots> {
-    return this.http.get<AvailableSlots>(`doctorAvailability/${doctorId}/availables`, { params: toHttpParams({ date }) });
+    return this.http.get<AvailableSlots>(`doctorAvailability/doctor/${doctorId}/availables`, { params: toHttpParams({ date }) });
   }
 
   exceptions(from?: string): Observable<ScheduleException[]> {
