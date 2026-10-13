@@ -94,8 +94,7 @@ public class AppointmentController {
             @PathVariable Long appointmentId,
             @Valid @RequestBody(required = false) CancelAppointmentRequest request,
             Authentication auth) {
-        var reason = request != null ? request.reason() : null;
-        return ResponseEntity.ok(appointmentService.cancelAppointmentById(appointmentId, reason, Long.parseLong(auth.getName()), SecurityUtils.extractRole(auth)));
+        return ResponseEntity.ok(appointmentService.cancelAppointmentById(appointmentId, request, Long.parseLong(auth.getName()), SecurityUtils.extractRole(auth)));
     }
 
     @GetMapping("/board")
