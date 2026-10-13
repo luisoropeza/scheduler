@@ -23,5 +23,6 @@ public record AppointmentResponse(
         String patientEmail,
 
         AppointmentStatus status,
+        String cancellationReason,
         LocalDateTime createdAt
 ) {}

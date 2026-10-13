@@ -2,6 +2,7 @@ package com.example.scheduler.controller;
 
 import com.example.scheduler.dto.appointment.AppointmentRequest;
 import com.example.scheduler.dto.appointment.AppointmentResponse;
+import com.example.scheduler.dto.appointment.CancelAppointmentRequest;
 import com.example.scheduler.dto.appointment.AppointmentSummaryItem;
 import com.example.scheduler.enums.AppointmentStatus;
 import com.example.scheduler.enums.ERole;
@@ -88,9 +89,12 @@ public class AppointmentController {
 
     @PatchMapping("/{appointmentId}/cancel")
     @PreAuthorize("hasAnyRole('DOCTOR', 'ASSISTANT')")
-    @Operation(summary = "PATCH /api/appointments/{id}/cancel — cancel an appointment, releases the slot back to AVAILABLE")
-    public ResponseEntity<AppointmentResponse> cancelAppointmentById(@PathVariable Long appointmentId, Authentication auth) {
-        return ResponseEntity.ok(appointmentService.cancelAppointmentById(appointmentId, Long.parseLong(auth.getName()), SecurityUtils.extractRole(auth)));
+    @Operation(summary = "PATCH /api/appointments/{id}/cancel — cancel an appointment with an optional {reason} shown to the patient, releases the slot back to AVAILABLE")
+    public ResponseEntity<AppointmentResponse> cancelAppointmentById(
+            @PathVariable Long appointmentId,
+            @Valid @RequestBody(required = false) CancelAppointmentRequest request,
+            Authentication auth) {
+        return ResponseEntity.ok(appointmentService.cancelAppointmentById(appointmentId, request, Long.parseLong(auth.getName()), SecurityUtils.extractRole(auth)));
     }
 
     @GetMapping("/board")

@@ -12,6 +12,11 @@ import {
   AppointmentDetailDialogComponent,
   AppointmentDetailData,
 } from './appointment-detail-dialog.component';
+import {
+  CancelAppointmentData,
+  CancelAppointmentDialogComponent,
+  CancelAppointmentResult,
+} from './cancel-appointment-dialog.component';
 
 /**
  * Confirm / cancel / detail flows shared by the board, the calendar and the appointments list.
@@ -51,17 +56,16 @@ export class AppointmentActionsService {
       );
   }
 
+  /** Asks for an optional reason (quick options or free text) that the patient will see. */
   cancel(id: number, patientName: string): Observable<AppointmentResponse> {
-    return this.confirmService
-      .ask({
-        title: 'Cancelar cita',
-        message: `¿Cancelar la cita de ${patientName}? El horario quedará libre nuevamente.`,
-        confirmLabel: 'Cancelar cita',
-        danger: true,
+    return this.dialog
+      .open<CancelAppointmentResult, CancelAppointmentData>(CancelAppointmentDialogComponent, {
+        data: { patientName },
+        backdropClass: 'glass-backdrop',
       })
-      .pipe(
-        filter(Boolean),
-        switchMap(() => this.run(this.api.cancel(id), 'Cita cancelada')),
+      .closed.pipe(
+        filter((result): result is CancelAppointmentResult => !!result),
+        switchMap(({ reason }) => this.run(this.api.cancel(id, reason), 'Cita cancelada')),
       );
   }
 

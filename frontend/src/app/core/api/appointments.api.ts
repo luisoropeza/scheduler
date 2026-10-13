@@ -39,9 +39,11 @@ export class AppointmentsApi {
     return this.http.patch<AppointmentResponse>(`appointments/${id}/confirm`, null);
   }
 
-  /** DOCTOR / ASSISTANT only. */
-  cancel(id: number): Observable<AppointmentResponse> {
-    return this.http.patch<AppointmentResponse>(`appointments/${id}/cancel`, null);
+  /** DOCTOR / ASSISTANT only. `reason` is optional and shown to the patient. */
+  cancel(id: number, reason?: string | null): Observable<AppointmentResponse> {
+    return this.http.patch<AppointmentResponse>(`appointments/${id}/cancel`, {
+      reason: reason || null,
+    });
   }
 
   /** `from`/`to` are inclusive ISO dates. */

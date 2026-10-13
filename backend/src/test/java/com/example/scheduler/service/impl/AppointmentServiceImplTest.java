@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -50,7 +51,7 @@ class AppointmentServiceImplTest {
     @BeforeEach
     void freeSlot() {
         TenantContext.setCurrentTenant("clinic_3");
-        when(doctorAvailabilityRepository.findByDoctorIdAndDayOfWeekAndActiveTrue(DOCTOR_ID, START.getDayOfWeek()))
+        lenient().when(doctorAvailabilityRepository.findByDoctorIdAndDayOfWeekAndActiveTrue(DOCTOR_ID, START.getDayOfWeek()))
                 .thenReturn(List.of(DoctorAvailability.builder()
                         .startTime(LocalTime.of(8, 0)).endTime(LocalTime.of(13, 0)).slotDurationMinutes(30).build()));
     }
@@ -119,6 +120,32 @@ class AppointmentServiceImplTest {
         assertThatThrownBy(() -> service.bookAppointment(request, 5L, "PATIENT"))
                 .isInstanceOf(BusinessException.class);
         verify(appointmentRepository, never()).save(any());
+    }
+
+    @Test
+    void cancelAppointment_should_storeStrippedReason() {
+        stubExisting(AppointmentStatus.CONFIRMED);
+
+        service.cancelAppointmentById(1L, "  El doctor no estará disponible ", 1L, "ASSISTANT");
+
+        var saved = savedAppointment();
+        assertThat(saved.getStatus()).isEqualTo(AppointmentStatus.CANCELLED);
+        assertThat(saved.getCancellationReason()).isEqualTo("El doctor no estará disponible");
+    }
+
+    @Test
+    void cancelAppointment_should_storeNullReason_when_blankOrMissing() {
+        stubExisting(AppointmentStatus.PENDING);
+
+        service.cancelAppointmentById(1L, "   ", 1L, "ASSISTANT");
+
+        assertThat(savedAppointment().getCancellationReason()).isNull();
+    }
+
+    private void stubExisting(AppointmentStatus status) {
+        var appointment = Appointment.builder().id(1L).status(status).build();
+        when(appointmentRepository.findById(1L)).thenReturn(Optional.of(appointment));
+        when(appointmentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }
 
     private void stubSave() {

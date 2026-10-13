@@ -1,4 +1,5 @@
 package com.example.scheduler.service.impl;
+import com.example.scheduler.dto.appointment.CancelAppointmentRequest;
 
 import com.example.scheduler.config.tenant.TenantContext;
 import com.example.scheduler.dto.appointment.AppointmentRequest;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -97,12 +99,13 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
-    public AppointmentResponse cancelAppointmentById(Long AppointmentId, Long userId, String role) {
+    public AppointmentResponse cancelAppointmentById(Long AppointmentId, CancelAppointmentRequest request, Long userId, String role) {
         var appointment = getAppointmentOrThrowById(AppointmentId);
         verifyPermission(appointment, userId, role);
         if (appointment.getStatus() == AppointmentStatus.CANCELLED)
             throw new BusinessException("This appointment is already cancelled");
         appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointment.setCancellationReason(StringUtils.hasText(request.reason()) ? request.reason().strip() : null);
         return appointmentMapper.toResponse(saveAndNotify(appointment));
     }
 

@@ -38,6 +38,10 @@ public class Appointment {
     @Builder.Default
     private AppointmentStatus status = AppointmentStatus.PENDING;
 
+    /** Optional message left by staff when cancelling; shown to the patient. */
+    @Column(length = 500)
+    private String cancellationReason;
+
     @Version
     private Long version;
 

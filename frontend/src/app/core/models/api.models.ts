@@ -122,6 +122,8 @@ export interface AppointmentResponse {
   patientName: string;
   patientEmail: string;
   status: AppointmentStatus;
+  /** Optional message left by staff when cancelling; null otherwise. */
+  cancellationReason: string | null;
   createdAt: string;
 }
 
